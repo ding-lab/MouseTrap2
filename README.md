@@ -66,5 +66,9 @@ script `MouseTrap2.sh`
 
 Preliminary testing will take within docker container (because not all packages are installed on localhost).
 
-
-
+Script for launching docker container is `run_docker_adhoc.sh`.  There, two volumes are mounted:
+```
+data1: /Users/mwyczalk/Data/SomaticWrapper/image/A_Reference
+data2: /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat
+```
+These will allow the container to see the test data we're using
