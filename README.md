@@ -43,7 +43,7 @@ which is downloaded on MGI here: `/gscmnt/gc2619/dinglab_cptac3/CGC_import`
 ## Dockerfile
 
 We will be using a docker image which is an extension of Hua Song's [hsun9/disambiguateplus]
-That dockerfile can be found in `docker/Dockerfile.disambiguate`, but we won't it directly.
+That dockerfile can be found in `orig/Dockerfile.disambiguate`, but we won't it directly.
 
 [hsun9/disambiguateplus]: https://github.com/ding-lab/dockers/blob/master/samtools_bwa_picard_disambiguate/Dockerfile
 
@@ -54,4 +54,17 @@ We create a new image based on `hsun9/disambiguateplus` with the following chang
 * vim-tiny is installed
 
 The new image is created with `docker/Dockerfile` and tagged as, `cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest`
+
+## Processing Script
+
+The original script as obtained from Hua Sun is `orig/run.lsf.disambiguate.pl`.  This is modified to create the 
+script `MouseTrap2.sh`
+
+# Testing
+
+## Dockerfile
+
+Preliminary testing will take within docker container (because not all packages are installed on localhost).
+
+
 

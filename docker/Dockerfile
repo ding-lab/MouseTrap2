@@ -7,6 +7,9 @@ RUN apt-get update \
     && apt-get install -y vim-tiny \
     && apt-get clean
 
+RUN cd /usr/local \
+    && git clone https://github.com/ding-lab/MouseTrap2.git
+
 USER biodocker
 
 # following invocation will create common data dir in ./
