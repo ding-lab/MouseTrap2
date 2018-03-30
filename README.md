@@ -62,7 +62,17 @@ script `MouseTrap2.sh`
 
 # Testing
 
-## Dockerfile
+There are several levels of testing and development that take place here:
+
+1. Test the script directly by running it in bash from the command line
+    This is typically the first step, but requires that all applications be installed on the localhost.
+2. Run MouseTrap2.sh inside of docker
+3. Run MouseTrap2 as a CWL tool
+4. Run MouseTrap2 as a CWL workflow
+
+## Docker testing
+
+### Dockerfile
 
 Preliminary testing will take within docker container (because not all packages are installed on localhost).
 
@@ -73,7 +83,7 @@ data2: /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat
 ```
 These will allow the container to see the test data we're using
 
-## Memory issues
+### Memory issues
 
 `bwa mem` requires 6Gb of memory or so (8 has worked), and this needs to be set in two places:
 * In the script `run_docker_adhoc.sh`
@@ -81,5 +91,6 @@ These will allow the container to see the test data we're using
 
 You can monitor memory usage of containers with `docker stats`.
 
-dies and it seems like it is because of memory issues.  Hua's script was run with 16Gb memory.
-Is this an issue with docker run?
+## CWL Tool
+
+`MouseTrap2.cwl` was developed using Rabix Composer.
