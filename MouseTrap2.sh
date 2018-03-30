@@ -142,8 +142,8 @@ function test_exit_status {
     for rc in ${rcs}; do 
         >&2 echo Error code: $rc
         if [[ $rc != 0 ]]; then 
-            >&2 echo Fatal error.  NOT Exiting \(testing\)
-         #   exit $rc; 
+            >&2 echo Fatal error.  Exiting 
+            exit $rc; 
         fi; 
     done
 }
@@ -172,15 +172,10 @@ fi
 BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 
 # bwa human align and sort
+# This requires > 5Gb memory
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
-#$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
-# -v 4 is most verbose
-$BWA mem -v 4 -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 # > data.1
-
-test_exit_status
-exit
-#| $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
 test_exit_status
 
 # bwa mouse align and sort
