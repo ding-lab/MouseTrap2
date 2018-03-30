@@ -75,5 +75,11 @@ These will allow the container to see the test data we're using
 
 ## Memory issues
 
-`bwa mem` dies and it seems like it is because of memory issues.  Hua's script was run with 16Gb memory.
+`bwa mem` requires 6Gb of memory or so (8 has worked), and this needs to be set in two places:
+* In the script `run_docker_adhoc.sh`
+* On Docker for Mac, need to go to the whale icon, Preferences, Advanced to set the amount of resources Docker can use. Press save and restart button.  Setting this to 8 has worked.
+
+You can monitor memory usage of containers with `docker stats`.
+
+dies and it seems like it is because of memory issues.  Hua's script was run with 16Gb memory.
 Is this an issue with docker run?
