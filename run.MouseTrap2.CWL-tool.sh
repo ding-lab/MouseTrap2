@@ -6,10 +6,15 @@ OUTD="results"
 mkdir -p $OUTD
 RABIX_ARGS="--basedir $OUTD"
 
-FQ1="/data2/NIX5.10K.R1.fastq.gz"
-FQ2="/data2/NIX5.10K.R2.fastq.gz"
+# reference stuff in /data1
+DATA1="/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference"
+# test FASTQs in /data2
+DATA2="/Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat"
 
-HGFA="/data1/GRCh37-lite.fa"
-MMFA="/data1/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
+FQ1="$DATA2/NIX5.10K.R1.fastq.gz"
+FQ2="$DATA2/NIX5.10K.R2.fastq.gz"
+
+HGFA="$DATA1/GRCh37-lite.fa"
+MMFA="$DATA1/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 
 $RABIX $RABIX_ARGS $CWL -- --FQ1 $FQ1 --FQ2 $FQ2 --HGFA $HGFA --MMFA $MMFA

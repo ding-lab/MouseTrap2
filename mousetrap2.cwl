@@ -49,6 +49,8 @@ outputs:
     outputBinding: {}
 label: MouseTrap2
 requirements:
+  - class: ResourceRequirement
+    ramMin: 8000
   - class: DockerRequirement
     dockerPull: 'cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest'
 'sbg:job':
@@ -101,4 +103,4 @@ requirements:
     sample_name: sample_name-string-value
   runtime:
     cores: 1
-    ram: 1000
+    ram: 8000
