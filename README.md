@@ -72,3 +72,8 @@ data1: /Users/mwyczalk/Data/SomaticWrapper/image/A_Reference
 data2: /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat
 ```
 These will allow the container to see the test data we're using
+
+## Memory issues
+
+`bwa mem` dies and it seems like it is because of memory issues.  Hua's script was run with 16Gb memory.
+Is this an issue with docker run?

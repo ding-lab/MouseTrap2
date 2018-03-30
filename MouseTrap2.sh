@@ -140,7 +140,6 @@ function test_exit_status {
 
 	rcs=${PIPESTATUS[*]}; 
     for rc in ${rcs}; do 
-        >&2 echo Error code: $rc
         if [[ $rc != 0 ]]; then 
             >&2 echo Fatal error.  Exiting 
             exit $rc; 

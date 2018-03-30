@@ -4,16 +4,15 @@ FROM hsun9/disambiguateplus
 
 USER root
 RUN apt-get update \
-    && apt-get install -y vim-tiny \
+    && apt-get install -y vim \
     && apt-get clean
+
+# do: get this from somaticwrapper
+COPY vimrc /home/biodocker/.vimrc
+
+CD /usr/local/MouseTrap2
 
 RUN cd /usr/local \
     && git clone https://github.com/ding-lab/MouseTrap2.git
 
-USER biodocker
-
-# following invocation will create common data dir in ./
-# docker run -v $PWD/data:/data -it breakpoint_surveyor
-
-VOLUME ["/data"]
 
