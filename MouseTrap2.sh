@@ -52,7 +52,7 @@ while getopts ":b:1:2:h:m:s:o:" opt; do
       ;;
     m) 
       MMFA=$OPTARG
-      echo "Setting Mouse reference $MMFA Gb" >&2
+      echo "Setting Mouse reference $MMFA" >&2
       ;;
     s) 
       SAMPLE=$OPTARG
@@ -136,11 +136,14 @@ fi
 
 function test_exit_status {
 	# Evaluate return value for chain of pipes; see https://stackoverflow.com/questions/90418/exit-shell-script-based-on-process-exit-code
+    # exit code 137 is fatal error signal 9: http://tldp.org/LDP/abs/html/exitcodes.html
+
 	rcs=${PIPESTATUS[*]}; 
     for rc in ${rcs}; do 
+        >&2 echo Error code: $rc
         if [[ $rc != 0 ]]; then 
-            >&2 echo Fatal error.  Exiting.
-            exit $rc; 
+            >&2 echo Fatal error.  NOT Exiting \(testing\)
+         #   exit $rc; 
         fi; 
     done
 }
@@ -171,7 +174,13 @@ BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 # bwa human align and sort
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
-$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+#$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+# -v 4 is most verbose
+$BWA mem -v 4 -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 # > data.1
+
+test_exit_status
+exit
+#| $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
 test_exit_status
 
 # bwa mouse align and sort
