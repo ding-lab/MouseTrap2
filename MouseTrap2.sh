@@ -15,9 +15,9 @@
 # -o outdir: output directory.  Default is '.'
 # -d: dry run.  Print commands but do not execute them
 
-# Output
-# $OUTD/$SAMPLE.mouseFiltered.remDup.bam
-# $OUTD/$SAMPLE.mouseFiltered.remDup.bam.bai
+# Output (default)
+# hgmm.mouseFiltered.remDup.bam
+# hgmm.mouseFiltered.remDup.bam.bai
 
 # sample data
 # HGFA="/gscmnt/gc2737/ding/hsun/data/GRCh37-lite/GRCh37-lite.fa"

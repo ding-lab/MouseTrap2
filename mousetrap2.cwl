@@ -44,9 +44,12 @@ inputs:
       position: 0
       prefix: '-s'
 outputs:
-  - id: output
-    type: File?
-    outputBinding: {}
+  - id: mouse.bam
+    type: File
+    outputBinding:
+      glob: hgmm.mouseFiltered.remDup.bam
+    secondaryFiles:
+      - .bai
 label: MouseTrap2
 requirements:
   - class: ResourceRequirement

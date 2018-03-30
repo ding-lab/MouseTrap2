@@ -10,9 +10,8 @@ RUN apt-get update \
 # do: get this from somaticwrapper
 COPY vimrc /home/biodocker/.vimrc
 
-CD /usr/local/MouseTrap2
-
 RUN cd /usr/local \
     && git clone https://github.com/ding-lab/MouseTrap2.git
 
+WORKDIR /usr/local/MouseTrap2
 
