@@ -1,6 +1,6 @@
 # MouseTrap2: A better mouse filter
 
-This is a CWL version of Hua Song's mouse filter.
+This is a CWL version of Hua Sun's mouse filter.
 
 # Local testing and development
 
