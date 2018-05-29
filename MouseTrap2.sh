@@ -151,7 +151,7 @@ function test_exit_status {
 function bam2fq {
     MYBAM=$1
     MYFQ1=$2
-    MYFQ2=$2
+    MYFQ2=$3
 
     >&2 echo Sorting $MYBAM, extracting FASTQs to $MYFQ1 and $MYFQ2 ...
 # V1 no pipes
@@ -192,10 +192,24 @@ test_exit_status
 $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
 test_exit_status
 
-# retain only "read mapped in proper pair" 
->&2 echo Retaining mapped reads, and sorting
-$SAMTOOLS view -b -f 0x2 $OUTD/$SAMPLE.disambiguatedSpeciesA.bam | $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.mouseFiltered.bam -T $OUTD/$SAMPLE.mouseFiltered -
-test_exit_status
+# OLD from MouseTrap2 v1.0
+    ## retain only "read mapped in proper pair" 
+    #>&2 echo Retaining mapped reads, and sorting
+    #$SAMTOOLS view -b -f 0x2 $OUTD/$SAMPLE.disambiguatedSpeciesA.bam | $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.mouseFiltered.bam -T $OUTD/$SAMPLE.mouseFiltered -
+    #test_exit_status
+
+# new from run.lsf.disambiguate.v2.1.pl https://github.com/ding-lab/MouseFilter/blob/master/run.lsf.disambiguate.v2.1.pl
+# re-create fq
+\$samtools sort -m 1G -@ 6 -o $outFolder/$name.disam.sortbyname.bam -n $outFolder/$name.disambiguatedSpeciesA.bam
+\$samtools fastq $outFolder/$name.disam.sortbyname.bam -1 $outFolder/$name.disam_1.fastq.gz -2 $outFolder/$name.disam_2.fastq.gz
+# bwa hg
+\$bwa mem -t 8 -M -R "\@RG\\tID:$sample\\tSM:$sample\\tPL:illumina\\tLB:$sample.lib\\tPU:$sample.unit" \$hg_genome $outFolder/$name.disam_1.fastq.gz $outFolder/$name.disam_2.fastq.gz > $outFolder/$name.disam.reAligned.sam
+# sort
+\$JAVA -Xmx8G -jar \$picard SortSam \\
+   I=$outFolder/$name.disam.reAligned.sam \\
+   O=$outFolder/$name.disam.reAligned.bam \\
+   SORT_ORDER=coordinate
+
 
 # remove-duplication
 >&2 echo Running Picard MarkDuplicates
