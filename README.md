@@ -1,6 +1,6 @@
 # MouseTrap2: A better mouse filter
 
-This is a CWL version of Hua Song's mouse filter.
+This is a CWL version of Hua Sun's mouse filter.
 
 # Local testing and development
 
@@ -42,7 +42,7 @@ which is downloaded on MGI here: `/gscmnt/gc2619/dinglab_cptac3/CGC_import`
 
 ## Dockerfile
 
-We will be using a docker image which is an extension of Hua Song's [hsun9/disambiguateplus]
+We will be using a docker image which is an extension of Hua Sun's [hsun9/disambiguateplus]
 That dockerfile can be found in `orig/Dockerfile.disambiguate`, but we won't it directly.
 
 [hsun9/disambiguateplus]: https://github.com/ding-lab/dockers/blob/master/samtools_bwa_picard_disambiguate/Dockerfile
