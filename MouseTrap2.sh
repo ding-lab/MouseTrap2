@@ -190,6 +190,7 @@ test_exit_status
 # mouse-filter - Disambiguate
 >&2 echo Running Disambiguate...
 $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
+# This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human.
 test_exit_status
 
 # OLD from MouseTrap2 v1.0
@@ -200,30 +201,26 @@ test_exit_status
 
 # new from run.lsf.disambiguate.v2.1.pl https://github.com/ding-lab/MouseFilter/blob/master/run.lsf.disambiguate.v2.1.pl
 # re-create fq
-\$samtools sort -m 1G -@ 6 -o $outFolder/$name.disam.sortbyname.bam -n $outFolder/$name.disambiguatedSpeciesA.bam
-\$samtools fastq $outFolder/$name.disam.sortbyname.bam -1 $outFolder/$name.disam_1.fastq.gz -2 $outFolder/$name.disam_2.fastq.gz
-# bwa hg
-\$bwa mem -t 8 -M -R "\@RG\\tID:$sample\\tSM:$sample\\tPL:illumina\\tLB:$sample.lib\\tPU:$sample.unit" \$hg_genome $outFolder/$name.disam_1.fastq.gz $outFolder/$name.disam_2.fastq.gz > $outFolder/$name.disam.reAligned.sam
-# sort
-\$JAVA -Xmx8G -jar \$picard SortSam \\
-   I=$outFolder/$name.disam.reAligned.sam \\
-   O=$outFolder/$name.disam.reAligned.bam \\
-   SORT_ORDER=coordinate
+# $SAMTOOLS sort -m 1G -@ 6 -o $outFolder/$name.disam.sortbyname.bam -n $outFolder/$name.disambiguatedSpeciesA.bam
+# $SAMTOOLS fastq $outFolder/$name.disam.sortbyname.bam -1 $outFolder/$name.disam_1.fastq.gz -2 $outFolder/$name.disam_2.fastq.gz
 
+# Above sort / fastq calls replaced with bam2fq
+FQ1="$OUTD/$SAMPLE.disam_1.human.fastq.gz"
+FQ2="$OUTD/$SAMPLE.disam_2.human.fastq.gz"
+bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
 
-# remove-duplication
->&2 echo Running Picard MarkDuplicates
-OUTFINAL=$OUTD/$SAMPLE.mouseFiltered.remDup.bam
-$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates \
-   I=$OUTD/$SAMPLE.mouseFiltered.bam \
-   O=$OUTFINAL \
-   REMOVE_DUPLICATES=true \
-   M=$OUTD/picard.remdup.metrics.txt
+OUTFINAL="$OUTD/$SAMPLE.mouseFiltered.remDup.bam"
+
+# bwa human FASTQ, and sort, then remove duplicates : http://broadinstitute.github.io/picard/faq.html
+>&2 echo Running BWA mem, Picard SortSam, Picard MarkDuplicates
+$BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
+$JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=/dev/stdout SORT_ORDER=coordinate | \
+$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=/dev/stdin O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
 test_exit_status
 
 # index bam
 >&2 echo Indexing $OUTFINAL
-$SAMTOOLS index $OUTD/$SAMPLE.mouseFiltered.remDup.bam
+$SAMTOOLS index $OUTFINAL
 test_exit_status
 
->&2 echo MouseTrap2 processing complete
+>&2 echo MouseTrap2 processing complete.  Results written to $OUTFINAL
