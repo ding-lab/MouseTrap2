@@ -1,4 +1,5 @@
 # Run docker image with the given volumes mounted for testing
+# TODO: add MGI version
 
 IMAGE="cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest"
 

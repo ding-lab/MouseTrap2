@@ -2,6 +2,17 @@
 
 This is a CWL version of Hua Sun's mouse filter.
 
+# Quick start
+
+## Launch from within docker container
+```
+bash docker/launch_docker.sh
+# git pull origin master
+# bash run.MouseTrap2.docker.sh
+```
+(`#` is from within docker container)
+
+
 # Local testing and development
 
 ## Reference data

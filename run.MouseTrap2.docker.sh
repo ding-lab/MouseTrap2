@@ -1,4 +1,5 @@
 # Run MouseTrap2 from within docker environment
+# Docker environment will typically be started using docker/launch_docker.sh
 
 # Arguments
 # -b BAM: Pass BAM to be processed
