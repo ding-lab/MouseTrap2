@@ -147,14 +147,15 @@ function test_exit_status {
     done
 }
 
+# Convert BAM to two sorted FASTQ files
 # Usage: bam2fq BAM FQ1 FQ2
 function bam2fq {
-    MYBAM=$1
-    MYFQ1=$2
-    MYFQ2=$3
+    MYBAM=$1 # input
+    MYFQ1=$2 # output
+    MYFQ2=$3 # output
 
     >&2 echo Sorting $MYBAM, extracting FASTQs to $MYFQ1 and $MYFQ2 ...
-# V1 no pipes
+#  no pipes equivalent
 #    $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.sortbyname.bam -n $MYBAM
 #    $SAMTOOLS fastq $OUTD/$SAMPLE.sortbyname.bam -1 $MYFQ1 -2 $MYFQ2
 
@@ -174,95 +175,64 @@ BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 # This requires > 5Gb memory
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
-# TESTING $BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
 test_exit_status
 
 # bwa mouse align and sort
 >&2 echo Aligning reads to mouse reference...
 MMOUT="$OUTD/mouse.sort.bam"
-# TESTING $BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
+$BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
 test_exit_status
-
-# sort bam by natural name
-#$SAMTOOLS sort -m 1G -@ 6 -o $OUTD/human.sort.bam -n -T $OUTD/human $OUTD/human.bam
-#$SAMTOOLS sort -m 1G -@ 6 -o $OUTD/mouse.sort.bam -n -T $OUTD/mouse $OUTD/mouse.bam
 
 # mouse-filter - Disambiguate
 >&2 echo Running Disambiguate...
-# TESTING $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
+$DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
 # This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human.
 test_exit_status
 
-# OLD from MouseTrap2 v1.0
-    ## retain only "read mapped in proper pair" 
-    #>&2 echo Retaining mapped reads, and sorting
-    #$SAMTOOLS view -b -f 0x2 $OUTD/$SAMPLE.disambiguatedSpeciesA.bam | $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.mouseFiltered.bam -T $OUTD/$SAMPLE.mouseFiltered -
-    #test_exit_status
-
-# new from run.lsf.disambiguate.v2.1.pl https://github.com/ding-lab/MouseFilter/blob/master/run.lsf.disambiguate.v2.1.pl
-# re-create fq
-# $SAMTOOLS sort -m 1G -@ 6 -o $outFolder/$name.disam.sortbyname.bam -n $outFolder/$name.disambiguatedSpeciesA.bam
-# $SAMTOOLS fastq $outFolder/$name.disam.sortbyname.bam -1 $outFolder/$name.disam_1.fastq.gz -2 $outFolder/$name.disam_2.fastq.gz
-
-# Above sort / fastq calls replaced with bam2fq
 FQ1="$OUTD/$SAMPLE.disam_1.human.fastq.gz"
 FQ2="$OUTD/$SAMPLE.disam_2.human.fastq.gz"
-# TESTING bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
+bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
 
 OUTFINAL="$OUTD/$SAMPLE.mouseFiltered.remDup.bam"
 
-# bwa human FASTQ, and sort, then remove duplicates : http://broadinstitute.github.io/picard/faq.html
-#>&2 echo Starting BWA mem, Picard SortSam, Picard MarkDuplicates
-
-# NOTE: All steps above turned off with TESTING note to make this go faster.  TODO: atomize the above steps to make controlling them easier
-
+# Optimization pipes output of BWA step to SortSam
 OPTIMIZE=1
-# for pipes: /dev/stdin
 
 if [ $OPTIMIZE == 1 ]; then
 
->&2 echo Running BWA mem + SortSam optimization, then MarkDuplicates 
+    >&2 echo Preparing BWA mem + SortSam optimization, then MarkDuplicates 
 
-BWAOUT="$OUTD/$SAMPLE.BWA.out"
-SORTSAM="$OUTD/$SAMPLE.SortSam.out"
+    SORTSAM="$OUTD/$SAMPLE.SortSam.out"
 
-# Originally as written
-# $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
-# $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=/dev/stdout SORT_ORDER=coordinate | \
-# $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=/dev/stdin O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
+    # BWA -> SortSam is piped, SortSam -> Mark written to file
+    # From http://broadinstitute.github.io/picard/faq.html
+    # for pipes: /dev/stdin
+    # MarkDuplicates cannot read input from STDIN
 
-# This works.  BWA -> SortSam is piped, SortSam -> Mark written to file
-# From http://broadinstitute.github.io/picard/faq.html
-# MarkDuplicates cannot read input from STDIN
+    >&2 echo Running BWA mem + SortSam 
+    $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
+    $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=$SORTSAM SORT_ORDER=coordinate 
+    test_exit_status
 
-$BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
-$JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=$SORTSAM SORT_ORDER=coordinate 
-$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
-
-# BWA -> SortSam is written to file, SortSam -> Mark is piped
-# >&2 echo MT2 BWA MEM
-# $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT
-# >&2 echo MT2 SortSam + Mark
-# $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=/dev/stdout SORT_ORDER=coordinate | \
-
-#$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=/dev/stdin O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
-#test_exit_status
+    >&2 echo Running MarkDuplicates 
+    $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
 
 else
 
->&2 echo Starting BWA mem + SortSam + MarkDuplicates step by step
+    >&2 echo Starting BWA mem + SortSam + MarkDuplicates step by step
 
-BWAOUT="$OUTD/$SAMPLE.BWA.out"
-SORTSAM="$OUTD/$SAMPLE.SortSam.out"
+    BWAOUT="$OUTD/$SAMPLE.BWA.out"
+    SORTSAM="$OUTD/$SAMPLE.SortSam.out"
 
->&2 echo running BWA mem, output to temp file $BWAOUT
-$BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT ; test_exit_status
+    >&2 echo running BWA mem, output to temp file $BWAOUT
+    $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT ; test_exit_status
 
->&2 echo running picard SortSam, output to temp file $SORTSAM
-$JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=$SORTSAM SORT_ORDER=coordinate ; test_exit_status
+    >&2 echo running picard SortSam, output to temp file $SORTSAM
+    $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=$SORTSAM SORT_ORDER=coordinate ; test_exit_status
 
->&2 echo running picard MarkDuplicates, output to final file $OUTFINAL
-$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt ; test_exit_status
+    >&2 echo running picard MarkDuplicates, output to final file $OUTFINAL
+    $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt ; test_exit_status
 
 fi
 
