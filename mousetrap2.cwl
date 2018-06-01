@@ -1,5 +1,7 @@
 class: CommandLineTool
 cwlVersion: v1.0
+$namespaces:
+  sbg: 'https://www.sevenbridges.com'
 id: mousetrap2
 baseCommand:
   - bash
@@ -38,8 +40,8 @@ inputs:
       position: 0
       prefix: '-m'
     label: Mouse reference FASTA
-  - id: sample_name
-    type: string?
+  - id: SAMPLE
+    type: string
     inputBinding:
       position: 0
       prefix: '-s'
@@ -47,7 +49,7 @@ outputs:
   - id: mouse.bam
     type: File
     outputBinding:
-      glob: hgmm.mouseFiltered.remDup.bam
+      glob: '*.disambiguate_human.bam'
     secondaryFiles:
       - .bai
 label: MouseTrap2

@@ -10,6 +10,7 @@ RUN apt-get update \
 # do: get this from somaticwrapper
 COPY vimrc /home/biodocker/.vimrc
 
+ENV foo redo        # this can be modified at will to force cloning latest version of MouseTrap2
 RUN cd /usr/local \
     && git clone https://github.com/ding-lab/MouseTrap2.git
 

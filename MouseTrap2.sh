@@ -1,10 +1,12 @@
-# Run MouseTrap2 filter on BAM / FASTQ files
+# Run MouseTrap2 filter on BAM / FASTQ files.  Removes mouse reads and returns human-only BAM
 # Usage:
 # MouseTrap2.sh [arguments] 
 #
 # MouseTrap2.sh will process either one BAM file or two FASTQ files; require either a BAM (-b)
 # or two FASTQs (-1, -2) to be passed.
-#
+# Output:
+#       OUTD/SAMPLE.disambiguate_human.bam
+#       OUTD/SAMPLE.disambiguate_human.bam.bai
 #
 # Arguments:
 # -b BAM: Pass BAM to be processed
@@ -15,15 +17,12 @@
 # -o outdir: output directory.  Default is '.'
 # -d: dry run.  Print commands but do not execute them
 
-# Output (default)
-# hgmm.mouseFiltered.remDup.bam
-# hgmm.mouseFiltered.remDup.bam.bai
 
 # sample data
 # HGFA="/gscmnt/gc2737/ding/hsun/data/GRCh37-lite/GRCh37-lite.fa"
 # MMFA="/gscmnt/gc2737/ding/hsun/data/ensemble_v91/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 
-# Default values
+# SAMPLE is used extensively for filenames and BAM header
 SAMPLE="hgmm" # name of sample, arbitrary name
 OUTD="."  # output
 
@@ -190,11 +189,12 @@ $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
 # This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human.
 test_exit_status
 
+# Keeping only species A reads (human)
 FQ1="$OUTD/$SAMPLE.disam_1.human.fastq.gz"
 FQ2="$OUTD/$SAMPLE.disam_2.human.fastq.gz"
 bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
 
-OUTFINAL="$OUTD/$SAMPLE.mouseFiltered.remDup.bam"
+OUTFINAL="$OUTD/$SAMPLE.disambiguate_human.bam"
 
 # Optimization pipes output of BWA step to SortSam
 OPTIMIZE=1
