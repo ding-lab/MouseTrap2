@@ -17,11 +17,6 @@
 # -o outdir: output directory.  Default is '.'
 # -d: dry run.  Print commands but do not execute them
 
-
-# sample data
-# HGFA="/gscmnt/gc2737/ding/hsun/data/GRCh37-lite/GRCh37-lite.fa"
-# MMFA="/gscmnt/gc2737/ding/hsun/data/ensemble_v91/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
-
 # SAMPLE is used extensively for filenames and BAM header
 SAMPLE="hgmm" # name of sample, arbitrary name
 OUTD="."  # output
