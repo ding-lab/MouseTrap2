@@ -17,13 +17,13 @@ FQ2="/gscuser/mwyczalk/projects/Rabix/MouseTrap2/test-dat/NIX5.10K.R2.fastq.gz"
 HGFA="/gscmnt/gc2521/dinglab/mwyczalk/somatic-wrapper-data/image.data/A_Reference/GRCh37-lite.fa"
 MMFA="/gscmnt/gc2737/ding/hsun/data/ensemble_v91/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 
-OUTDIR="./results"
+OUTDIR="/gscuser/mwyczalk/projects/Rabix/MouseTrap2/results"
 mkdir -p $OUTDIR
 
 CMD="/bin/bash MouseTrap2.sh -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR"
 
-#MEMGB=8
-#LSF_ARGS="-R \"rusage[mem=${MEMGB}000]\" -M ${MEMGB}000000"
+MEMGB=8
+LSF_ARGS="-R \"rusage[mem=${MEMGB}000]\" -M ${MEMGB}000000"
 
 bsub -q research-hpc $LSF_ARGS -Is -a "docker($IMAGE_MGI)" $CMD
 
