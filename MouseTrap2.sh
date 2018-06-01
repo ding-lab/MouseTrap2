@@ -128,6 +128,7 @@ if [ ! -e $MMFA ]; then
     exit 1
 fi
 
+
 function test_exit_status {
 	# Evaluate return value for chain of pipes; see https://stackoverflow.com/questions/90418/exit-shell-script-based-on-process-exit-code
     # exit code 137 is fatal error signal 9: http://tldp.org/LDP/abs/html/exitcodes.html
@@ -156,6 +157,10 @@ function bam2fq {
     $SAMTOOLS sort -m 1G -@ 6 -n $MYBAM | $SAMTOOLS fastq -1 $MYFQ1 -2 $MYFQ2 -
     >&2 echo Done sorting.
 }
+
+# Create output diretory and make sure it succeeded
+mkdir -p $OUTD
+test_exit_status
 
 if [ ! -z $BAM ]; then
     $FQ1=$OUTD/$SAMPLE\_1.fastq.gz
