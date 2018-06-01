@@ -1,0 +1,18 @@
+# Dockerfile for MGI-specific modifications
+FROM cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest
+
+USER root
+
+# This is required to play well at MGI
+# MGI also does not respect USER directive, so /usr/local/somoaticwrapper is immutable
+RUN apt-get update \
+    && apt-get install -y libnss-sss\
+    && apt-get clean
+
+COPY init/mgi-sw.bashrc /home/sw/.bashrc
+#COPY mgi-init/mgi-sw_start.sh /home/sw/
+
+USER sw
+
+CMD ["/bin/bash"]
+
