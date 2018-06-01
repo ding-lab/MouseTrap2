@@ -20,11 +20,9 @@ FQ2="/data2/NIX5.10K.R2.fastq.gz"
 HGFA="/data1/GRCh37-lite.fa"
 MMFA="/data1/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 
-#OUTDIR="./results"
-#mkdir -p $OUTDIR
+OUTDIR="./results"
 
-#CMD="/bin/bash MouseTrap2.sh -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR"
-CMD="/bin/bash MouseTrap2.sh -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA "
+CMD="/bin/bash MouseTrap2.sh -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR"
 
 #MEMGB=8
 #LSF_ARGS="-R \"rusage[mem=${MEMGB}000]\" -M ${MEMGB}000000"
