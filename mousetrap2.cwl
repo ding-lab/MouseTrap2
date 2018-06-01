@@ -46,7 +46,7 @@ inputs:
       position: 0
       prefix: '-s'
 outputs:
-  - id: mouse.bam
+  - id: disambiguate_human
     type: File
     outputBinding:
       glob: '*.disambiguate_human.bam'
