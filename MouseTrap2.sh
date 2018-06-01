@@ -163,8 +163,8 @@ mkdir -p $OUTD
 test_exit_status
 
 if [ ! -z $BAM ]; then
-    $FQ1=$OUTD/$SAMPLE\_1.fastq.gz
-    $FQ2=$OUTD/$SAMPLE\_2.fastq.gz
+    FQ1=$OUTD/$SAMPLE\_1.fastq.gz
+    FQ2=$OUTD/$SAMPLE\_2.fastq.gz
     bam2fq $BAM $FQ1 $FQ2
 fi
 
