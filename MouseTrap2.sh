@@ -174,13 +174,13 @@ BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 # This requires > 5Gb memory
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
-$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+# TESTING $BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
 test_exit_status
 
 # bwa mouse align and sort
 >&2 echo Aligning reads to mouse reference...
 MMOUT="$OUTD/mouse.sort.bam"
-$BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
+# TESTING $BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
 test_exit_status
 
 # sort bam by natural name
@@ -189,7 +189,7 @@ test_exit_status
 
 # mouse-filter - Disambiguate
 >&2 echo Running Disambiguate...
-$DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
+# TESTING $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
 # This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human.
 test_exit_status
 
@@ -207,16 +207,64 @@ test_exit_status
 # Above sort / fastq calls replaced with bam2fq
 FQ1="$OUTD/$SAMPLE.disam_1.human.fastq.gz"
 FQ2="$OUTD/$SAMPLE.disam_2.human.fastq.gz"
-bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
+# TESTING bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
 
 OUTFINAL="$OUTD/$SAMPLE.mouseFiltered.remDup.bam"
 
 # bwa human FASTQ, and sort, then remove duplicates : http://broadinstitute.github.io/picard/faq.html
->&2 echo Running BWA mem, Picard SortSam, Picard MarkDuplicates
+#>&2 echo Starting BWA mem, Picard SortSam, Picard MarkDuplicates
+
+# NOTE: All steps above turned off with TESTING note to make this go faster.  TODO: atomize the above steps to make controlling them easier
+
+OPTIMIZE=1
+# for pipes: /dev/stdin
+
+if [ $OPTIMIZE == 1 ]; then
+
+>&2 echo Running BWA mem + SortSam optimization, then MarkDuplicates 
+
+BWAOUT="$OUTD/$SAMPLE.BWA.out"
+SORTSAM="$OUTD/$SAMPLE.SortSam.out"
+
+# Originally as written
+# $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
+# $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=/dev/stdout SORT_ORDER=coordinate | \
+# $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=/dev/stdin O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
+
+# This works.  BWA -> SortSam is piped, SortSam -> Mark written to file
+# From http://broadinstitute.github.io/picard/faq.html
+# MarkDuplicates cannot read input from STDIN
+
 $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
-$JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=/dev/stdout SORT_ORDER=coordinate | \
-$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=/dev/stdin O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
-test_exit_status
+$JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=$SORTSAM SORT_ORDER=coordinate 
+$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
+
+# BWA -> SortSam is written to file, SortSam -> Mark is piped
+# >&2 echo MT2 BWA MEM
+# $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT
+# >&2 echo MT2 SortSam + Mark
+# $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=/dev/stdout SORT_ORDER=coordinate | \
+
+#$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=/dev/stdin O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
+#test_exit_status
+
+else
+
+>&2 echo Starting BWA mem + SortSam + MarkDuplicates step by step
+
+BWAOUT="$OUTD/$SAMPLE.BWA.out"
+SORTSAM="$OUTD/$SAMPLE.SortSam.out"
+
+>&2 echo running BWA mem, output to temp file $BWAOUT
+$BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT ; test_exit_status
+
+>&2 echo running picard SortSam, output to temp file $SORTSAM
+$JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=$SORTSAM SORT_ORDER=coordinate ; test_exit_status
+
+>&2 echo running picard MarkDuplicates, output to final file $OUTFINAL
+$JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt ; test_exit_status
+
+fi
 
 # index bam
 >&2 echo Indexing $OUTFINAL
