@@ -21,6 +21,7 @@ MMFA="/gscmnt/gc2737/ding/hsun/data/ensemble_v91/Mus_musculus.GRCm38.dna_sm.prim
 
 OUTDIR="/gscuser/mwyczalk/projects/Rabix/MouseTrap2/results"
 mkdir -p $OUTDIR
+LOGS="-e $OUTDIR/run.err -o $OUTDIR/run.out"
 
 #CMD="/bin/bash MouseTrap2.sh -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR"
 CMD="/bin/bash MouseTrap2.sh -b $WHIMBAM -h $HGFA -m $MMFA -o $OUTDIR"
@@ -28,5 +29,5 @@ CMD="/bin/bash MouseTrap2.sh -b $WHIMBAM -h $HGFA -m $MMFA -o $OUTDIR"
 MEMGB=8
 LSF_ARGS="-R \"rusage[mem=${MEMGB}000]\" -M ${MEMGB}000000"
 
-bsub -q research-hpc $LSF_ARGS -a "docker($IMAGE_MGI)" $CMD
+bsub $LOGS -q research-hpc $LSF_ARGS -a "docker($IMAGE_MGI)" $CMD
 
