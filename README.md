@@ -1,6 +1,20 @@
 # MouseTrap2: A better mouse filter
 
-This is a CWL version of Hua Sun's mouse filter.
+# Notes about MGI testing (ongoing)
+
+Currently started script `launch.MouseTrap2.docker-MGI.realdata.sh`
+* analysis of data provided by Hua:
+  `/gscmnt/gc2612/whim_pdx_hamlet_xenograft/model_data/f8cc6fae4e784e41864b680d679246f8/build2ac9536b9e6b43f3a568baffb5974d40/alignments/94bf7538283c4e06b7e789b1d0eb848b.bam`
+  * Huas results:
+  `/gscmnt/gc2737/ding/hsun/pdx/test.disambiguate_somaticWrapper/wxs_disam_sw_plus/human_mouse/346`
+* Script started 6/3/18
+  * Output in
+    `/gscmnt/gc2508/dinglab/mwyczalk/MouseTrap2.data/results`
+
+## Launch vs. Run
+
+
+This is a CWL version of Hua Suns mouse filter.
 
 # Quick start
 
