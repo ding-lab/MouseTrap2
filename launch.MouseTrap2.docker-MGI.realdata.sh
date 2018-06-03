@@ -19,7 +19,8 @@ WHIMBAM="/gscmnt/gc2612/whim_pdx_hamlet_xenograft/model_data/f8cc6fae4e784e41864
 HGFA="/gscmnt/gc2521/dinglab/mwyczalk/somatic-wrapper-data/image.data/A_Reference/GRCh37-lite.fa"
 MMFA="/gscmnt/gc2737/ding/hsun/data/ensemble_v91/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 
-OUTDIR="/gscuser/mwyczalk/projects/Rabix/MouseTrap2/results"
+#OUTDIR="/gscuser/mwyczalk/projects/Rabix/MouseTrap2/results"
+OUTDIR="/gscmnt/gc2508/dinglab/mwyczalk/MouseTrap2.data/results"
 mkdir -p $OUTDIR
 LOGS="-e $OUTDIR/run.err -o $OUTDIR/run.out"
 
