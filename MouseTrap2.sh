@@ -181,7 +181,21 @@ BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 # This requires > 5Gb memory
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
-$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+
+# This is the original piped version 
+#$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+
+### Breaking up into individual steps for testing
+BWAOUT="$OUTD/BWA.out"
+VIEWOUT="$OUTD/BWA.out"
+>&2 echo running bwa mem step by step.  Output to $BWAOUT
+$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2  > $BWAOUT
+test_exit_status
+>&2 echo running samtools view  Output to $VIEWOUT
+$SAMTOOLS view -Sbh $BWAOUT > $VIEWOUT
+test_exit_status
+>&2 echo running samtools sort  Output to $HGOUT
+$SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human $VIEWOUT
 test_exit_status
 
 # bwa mouse align and sort
