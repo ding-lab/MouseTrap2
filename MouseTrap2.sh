@@ -150,22 +150,29 @@ function bam2fq {
     MYFQ2=$3 # output
 
     >&2 echo Sorting $MYBAM, extracting FASTQs to $MYFQ1 and $MYFQ2 ...
+    >&2 echo    tmp: $OUTD/bam2fq-tmp
 #  no pipes equivalent
 #    $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.sortbyname.bam -n $MYBAM
 #    $SAMTOOLS fastq $OUTD/$SAMPLE.sortbyname.bam -1 $MYFQ1 -2 $MYFQ2
 
     $SAMTOOLS sort -m 1G -@ 6 -n $MYBAM -T $OUTD/bam2fq-tmp | $SAMTOOLS fastq -1 $MYFQ1 -2 $MYFQ2 -
+    test_exit_status
     >&2 echo Done sorting.
 }
+
+>&2 echo MouseTrap2 starting...
 
 # Create output diretory and make sure it succeeded
 mkdir -p $OUTD
 test_exit_status
 
 if [ ! -z $BAM ]; then
+    >&2 echo Converting BAM to input FASTQ
     FQ1=$OUTD/$SAMPLE\_1.fastq.gz
     FQ2=$OUTD/$SAMPLE\_2.fastq.gz
     bam2fq $BAM $FQ1 $FQ2
+else
+    >&2 echo Input FASTQ provided
 fi
 
 BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
