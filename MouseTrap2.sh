@@ -154,7 +154,7 @@ function bam2fq {
 #    $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.sortbyname.bam -n $MYBAM
 #    $SAMTOOLS fastq $OUTD/$SAMPLE.sortbyname.bam -1 $MYFQ1 -2 $MYFQ2
 
-    $SAMTOOLS sort -m 1G -@ 6 -n $MYBAM | $SAMTOOLS fastq -1 $MYFQ1 -2 $MYFQ2 -
+    $SAMTOOLS sort -m 1G -@ 6 -n $MYBAM -T $OUTD/bam2fq-tmp | $SAMTOOLS fastq -1 $MYFQ1 -2 $MYFQ2 -
     >&2 echo Done sorting.
 }
 
