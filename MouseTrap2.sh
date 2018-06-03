@@ -187,7 +187,7 @@ HGOUT="$OUTD/human.sort.bam"
 
 ### Breaking up into individual steps for testing
 BWAOUT="$OUTD/BWA.out"
-VIEWOUT="$OUTD/BWA.out"
+VIEWOUT="$OUTD/VIEW.out"
 >&2 echo running bwa mem step by step.  Output to $BWAOUT
 $BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2  > $BWAOUT
 test_exit_status
