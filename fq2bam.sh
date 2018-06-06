@@ -115,6 +115,6 @@ TMPLIST="$TMPLIST $HGOUT"
 
 
 # Align and sort FASTQs.  Note failure may be due to memory requirements (>8Gb needed, 16Gb tested OK)
-$BWA mem -t 4 -M -R $BWAR $REFFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $BAMOUT -n -T $OUTD/fq2bam -
+$BWA mem -t 4 -M -R $BWAR $REFFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $OUTBAM -n -T $OUTD/fq2bam -
 
->&2 echo fq2bam.sh processing complete.  Results written to $BAMOUT
+>&2 echo fq2bam.sh processing complete.  Results written to $OUTBAM
