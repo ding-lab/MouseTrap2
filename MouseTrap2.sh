@@ -15,19 +15,16 @@
 # -m FASTA: mouse reference.  Required
 # -s sample: sample name.  Default is "hgmm"
 # -o outdir: output directory.  Default is '.'
-# -d: dry run.  Print commands but do not execute them
+# -c: clean.  Remove temporary files after execution
 
 # SAMPLE is used extensively for filenames and BAM header
 SAMPLE="hgmm" # name of sample, arbitrary name
 OUTD="."  # output
+TMPLIST=""  # keep track of generated files, to be optionally deleted at the end
 
 # http://wiki.bash-hackers.org/howto/getopts_tutorial
-while getopts ":b:1:2:h:m:s:o:" opt; do
+while getopts ":b:1:2:h:m:s:o:c" opt; do
   case $opt in
-    d)  
-      echo "Dry run" >&2
-      DRYRUN=1
-      ;;
     b) 
       BAM=$OPTARG
       echo "Setting BAM file $BAM" >&2
@@ -55,6 +52,10 @@ while getopts ":b:1:2:h:m:s:o:" opt; do
     o) 
       OUTD=$OPTARG
       echo "Setting output directory $OUTD" >&2
+      ;;
+    c) 
+      CLEAN=1
+      echo "Removing temporary files when complete" >&2
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -171,6 +172,7 @@ if [ ! -z $BAM ]; then
     FQ1=$OUTD/$SAMPLE\_1.fastq.gz
     FQ2=$OUTD/$SAMPLE\_2.fastq.gz
     bam2fq $BAM $FQ1 $FQ2
+    TMPLIST="$TMPLIST $FQ1 $FQ2"
 else
     >&2 echo Input FASTQ provided
 fi
@@ -181,6 +183,7 @@ BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 # This requires > 5Gb memory
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
+TMPLIST="$TMPLIST $HGOUT"
 
 OPTIMIZE=1
 
@@ -193,6 +196,7 @@ else
 ### Breaking up into individual steps for testing
 BWAOUT="$OUTD/BWA.out"
 VIEWOUT="$OUTD/VIEW.out"
+TMPLIST="$TMPLIST $BWAOUT $VIEWOUT"
 >&2 echo running bwa mem step by step.  Output to $BWAOUT
 $BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2  > $BWAOUT
 test_exit_status
@@ -211,19 +215,26 @@ fi
 # bwa mouse align and sort.  Optimized pipeline in all cases
 >&2 echo Aligning reads to mouse reference...
 MMOUT="$OUTD/mouse.sort.bam"
+TMPLIST="$TMPLIST $MMOUT"
 $BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
 test_exit_status
 
 # mouse-filter - Disambiguate
 >&2 echo Running Disambiguate...
 $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
-# This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human.
+# This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human and several other files
+TMPLIST="$TMPLIST \
+$OUTD/$SAMPLE.disambiguatedSpeciesA.bam \
+$OUTD/$SAMPLE.disambiguatedSpeciesB.bam \
+$OUTD/$SAMPLE.ambiguousSpeciesA.bam \
+$OUTD/$SAMPLE.ambiguousSpeciesB.bam"
 test_exit_status
 
 # Keeping only species A reads (human)
-FQ1="$OUTD/$SAMPLE.disam_1.human.fastq.gz"
-FQ2="$OUTD/$SAMPLE.disam_2.human.fastq.gz"
-bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQ1 $FQ2
+FQA1="$OUTD/$SAMPLE.disam_1.human.fastq.gz"
+FQA2="$OUTD/$SAMPLE.disam_2.human.fastq.gz"
+bam2fq $OUTD/$SAMPLE.disambiguatedSpeciesA.bam $FQA1 $FQA2
+TMPLIST="$TMPLIST $FQA1 $FQA2"
 
 OUTFINAL="$OUTD/$SAMPLE.disambiguate_human.bam"
 
@@ -235,6 +246,7 @@ if [ $OPTIMIZE == 1 ]; then
     >&2 echo Preparing BWA mem + SortSam optimization, then MarkDuplicates 
 
     SORTSAM="$OUTD/$SAMPLE.SortSam.out"
+    TMPLIST="$TMPLIST $SORTSAM"
 
     # BWA -> SortSam is piped, SortSam -> Mark written to file
     # From http://broadinstitute.github.io/picard/faq.html
@@ -247,7 +259,7 @@ if [ $OPTIMIZE == 1 ]; then
     test_exit_status
 
     >&2 echo Running MarkDuplicates 
-    $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt
+    $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt ; test_exit_status
 
 else
 
@@ -255,6 +267,7 @@ else
 
     BWAOUT="$OUTD/$SAMPLE.BWA.out"
     SORTSAM="$OUTD/$SAMPLE.SortSam.out"
+    TMPLIST="$TMPLIST $BWAOUT $SORTSAM"
 
     >&2 echo running BWA mem, output to temp file $BWAOUT
     $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT ; test_exit_status
@@ -271,5 +284,10 @@ fi
 >&2 echo Indexing $OUTFINAL
 $SAMTOOLS index $OUTFINAL
 test_exit_status
+
+if [ $CLEAN == 1 ]; then
+    >&2 echo Removing temporary files: $TMPLIST
+    rm -f $TMPLIST
+fi
 
 >&2 echo MouseTrap2 processing complete.  Results written to $OUTFINAL
