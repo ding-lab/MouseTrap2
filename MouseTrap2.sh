@@ -182,8 +182,13 @@ BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
 
-# This is the original piped version 
-#$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+OPTIMIZE=1
+
+if [ $OPTIMIZE == 1 ]; then
+# This is the original piped version.  Note failure may be due to memory requirements (>8Gb needed, 16Gb tested OK)
+$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
+
+else
 
 ### Breaking up into individual steps for testing
 BWAOUT="$OUTD/BWA.out"
@@ -191,14 +196,19 @@ VIEWOUT="$OUTD/VIEW.out"
 >&2 echo running bwa mem step by step.  Output to $BWAOUT
 $BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2  > $BWAOUT
 test_exit_status
+
 >&2 echo running samtools view  Output to $VIEWOUT
 $SAMTOOLS view -Sbh $BWAOUT > $VIEWOUT
 test_exit_status
 >&2 echo running samtools sort  Output to $HGOUT
+
+# below, fails with 8Gb, succeeds with 16Gb
 $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human $VIEWOUT
 test_exit_status
 
-# bwa mouse align and sort
+fi
+
+# bwa mouse align and sort.  Optimized pipeline in all cases
 >&2 echo Aligning reads to mouse reference...
 MMOUT="$OUTD/mouse.sort.bam"
 $BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
