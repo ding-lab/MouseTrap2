@@ -15,14 +15,20 @@ inputs:
     label: PDX BAM file
     doc: Require either one BAM or two FASTQs
   - id: FQ1
-    type: File?
+    type:
+      - File
+      - type: array
+        items: File
     inputBinding:
       position: 0
       prefix: '-1'
     label: PDX FASTQ R1
     doc: Require either one BAM or two FASTQs
   - id: FQ2
-    type: File?
+    type:
+      - File
+      - type: array
+        items: File
     inputBinding:
       position: 0
       prefix: '-2'
