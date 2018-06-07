@@ -73,6 +73,8 @@ function bam2fq {
 # OPTIMIZE flag is used in alignReadsSamtools and alignReadsPicard (both  `bwa mem` steps) to implement `pipe` optimization
 # of the sort, `bwa mem | samtools view | samtools sort` and `bwa mem | picard SortSam`
 
+# bwa human align and sort
+# This requires > 5Gb memory
 function alignReadsSamtools {
     FQ1_S=$1
     FQ2_S=$2
@@ -87,6 +89,7 @@ function alignReadsSamtools {
 
 
     if [ $OPTIMIZE_S == 1 ]; then
+        >&2 echo Running optimized pipeline \`bwa mem \| samtools view \| samtools sort\`
     # This is the original piped version.  Note failure may be due to memory requirements (>8Gb needed, 16Gb tested OK)
         $BWA mem -t 4 -M -R $BWAR $REFFA_S $FQ1_S $FQ2_S | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $BAMOUT_S -n -T $OUTD_S/tmpaln -
     else
@@ -119,8 +122,7 @@ function alignReadsPicard {
 
     if [ $OPTIMIZE_P == 1 ]; then
 
-        >&2 echo Preparing BWA mem + SortSam optimization, then MarkDuplicates 
-
+        >&2 echo Starting BWA mem + SortSam optimization, then MarkDuplicates 
         SORTSAM="$OUTD_P/$SAMPLE.SortSam.out"
         TMPLIST="$TMPLIST $SORTSAM"
 
@@ -140,7 +142,6 @@ function alignReadsPicard {
     else
 
         >&2 echo Starting BWA mem + SortSam + MarkDuplicates step by step
-
         BWAOUT="$OUTD_P/$SAMPLE.BWA.out"
         SORTSAM="$OUTD_P/$SAMPLE.SortSam.out"
         TMPLIST="$TMPLIST $BWAOUT $SORTSAM"
@@ -256,7 +257,7 @@ if [ -z $ATQ ]; then
     checkREF $HGFA "Human"
     checkREF $MMFA "Mouse"
 else
-    checkREF $HGFA "Provided"
+    checkREF $REFFA "Provided"
 fi
 
 >&2 echo MouseTrap2 starting...
@@ -275,18 +276,15 @@ else
     >&2 echo Input FASTQ provided
 fi
 
-
-
 OPTIMIZE=1
-# bwa human align and sort
-# This requires > 5Gb memory
-
-if [ $ATQ == 1 ]; then
+if [ ! -z $ATQ  ]; then
 
     >&2 echo Aligning reads to provided reference...
     OUT="$OUTD/$SAMPLE.bam"
     TMPLIST="$TMPLIST $HGOUT"
-    alignReadsSamtools $FQ1 $FQ2 $HGFA $HGOUT $OUTD $OPTIMIZE
+    alignReadsSamtools $FQ1 $FQ2 $REFFA $OUT $OUTD $OPTIMIZE
+    >&2 echo Quitting after alignment
+    exit 0
 
 fi
 
@@ -329,7 +327,7 @@ alignReadsPicard $FQA1 $FQA2 $HGFA $OUTFINAL $OUTD $OPTIMIZE
 $SAMTOOLS index $OUTFINAL
 test_exit_status
 
-if [ $CLEAN == 1 ]; then
+if [ ! -z $CLEAN ]; then
     >&2 echo Removing temporary files: $TMPLIST
     rm -f $TMPLIST
 fi
