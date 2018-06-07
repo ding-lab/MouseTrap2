@@ -1,8 +1,10 @@
-# Simple script to align two FASTQ files to generate a BAM
+# Simple script to align (`bwa mem`) two FASTQ files to generate a BAM
 # Usage:
 # fq2bam.sh [options] FASTQ1 FASTQ2
 #
 # Align FASTQ1 and FASTQ2 using bwa mem to generate a BAM file.
+# Result is sorted and indexed.
+# 
 # Procedure based on that in MouseFilter2.sh
 #
 # Output:
@@ -57,7 +59,9 @@ if [ "$#" -ne 2 ]; then
 fi
 FQ1=$1
 FQ2=$2
->&2 echo Input FASTA: \n\t$FQ1\n\t$FQ2
+>&2 echo Input FASTA: 
+>&2 echo $FQ1 
+>&2 echo $FQ2 
 
 # The following based on docker image
 BWA="/opt/conda/bin/bwa"
@@ -97,7 +101,7 @@ function test_exit_status {
     done
 }
 
->&2 echo bam2fq starting...
+>&2 echo fq2bam starting...
 
 # Create output diretory and make sure it succeeded
 OUTD=$(dirname $OUTBAM)
