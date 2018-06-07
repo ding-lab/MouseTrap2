@@ -11,8 +11,10 @@
 # Arguments:
 # -b BAM: Pass BAM to be processed
 # -1 FQ1 -2 FQ2: Pass two FASTQ files with reads1, reads2, respectively.
-# -h FASTA: human reference.  Required
-# -m FASTA: mouse reference.  Required
+# -r FASTA: reference to align FASTQ; after alignment complete, quit.
+#     name is $OUTD/SAMPLE.bam
+# -h FASTA: human reference.  Required (unless -r)
+# -m FASTA: mouse reference.  Required (unless -r)
 # -s sample: sample name.  Default is "hgmm"
 # -o outdir: output directory.  Default is '.'
 # -c: clean.  Remove temporary files after execution
@@ -22,8 +24,140 @@ SAMPLE="hgmm" # name of sample, arbitrary name
 OUTD="."  # output
 TMPLIST=""  # keep track of generated files, to be optionally deleted at the end
 
+function test_exit_status {
+	# Evaluate return value for chain of pipes; see https://stackoverflow.com/questions/90418/exit-shell-script-based-on-process-exit-code
+    # exit code 137 is fatal error signal 9: http://tldp.org/LDP/abs/html/exitcodes.html
+
+	rcs=${PIPESTATUS[*]}; 
+    for rc in ${rcs}; do 
+        if [[ $rc != 0 ]]; then 
+            >&2 echo Fatal error.  Exiting 
+            exit $rc; 
+        fi; 
+    done
+}
+
+# Test whether REF is a file and exists.  It is identified as "$REFTYPE Reference" in error messages
+function checkREF {
+    REF=$1
+    REFTYPE=$2  
+    if [ -z $REF ]; then
+        >&2 echo Error: $REFTYPE Reference not defined
+        exit 1
+    fi
+    if [ ! -e $REF ]; then
+        >&2 echo Error: $REFTYPE does not exist: $REF
+        exit 1
+    fi
+}
+
+
+# Convert BAM to two sorted FASTQ files
+# Usage: bam2fq BAM FQ1 FQ2
+function bam2fq {
+    MYBAM=$1 # input
+    MYFQ1=$2 # output
+    MYFQ2=$3 # output
+
+    >&2 echo Sorting $MYBAM, extracting FASTQs to $MYFQ1 and $MYFQ2 ...
+    >&2 echo    tmp: $OUTD/bam2fq-tmp
+#  no pipes equivalent
+#    $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.sortbyname.bam -n $MYBAM
+#    $SAMTOOLS fastq $OUTD/$SAMPLE.sortbyname.bam -1 $MYFQ1 -2 $MYFQ2
+
+    $SAMTOOLS sort -m 1G -@ 6 -n $MYBAM -T $OUTD/bam2fq-tmp | $SAMTOOLS fastq -1 $MYFQ1 -2 $MYFQ2 -
+    test_exit_status
+    >&2 echo Done sorting.
+}
+
+# OPTIMIZE flag is used in alignReadsSamtools and alignReadsPicard (both  `bwa mem` steps) to implement `pipe` optimization
+# of the sort, `bwa mem | samtools view | samtools sort` and `bwa mem | picard SortSam`
+
+function alignReadsSamtools {
+    FQ1_S=$1
+    FQ2_S=$2
+    REFFA_S=$3
+    BAMOUT_S=$4  # this path is independent of $OUTD
+    OUTD_S=$5    # Intermediate stuff here
+    OPTIMIZE_S=$6
+
+    # Header applied during alignment
+    BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
+    TMPLIST="$TMPLIST $HGOUT"
+
+
+    if [ $OPTIMIZE_S == 1 ]; then
+    # This is the original piped version.  Note failure may be due to memory requirements (>8Gb needed, 16Gb tested OK)
+        $BWA mem -t 4 -M -R $BWAR $REFFA_S $FQ1_S $FQ2_S | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $BAMOUT_S -n -T $OUTD_S/tmpaln -
+    else
+        ### Breaking up into individual steps for testing
+        BWAOUT="$OUTD_S/BWA.out"
+        VIEWOUT="$OUTD_S/VIEW.out"
+        TMPLIST="$TMPLIST $BWAOUT $VIEWOUT"
+        >&2 echo running bwa mem step by step.  Output to $BWAOUT
+        $BWA mem -t 4 -M -R $BWAR $REFFA_S $FQ1_S $FQ2_S  > $BWAOUT
+        test_exit_status
+
+        >&2 echo running samtools view  Output to $VIEWOUT
+        $SAMTOOLS view -Sbh $BWAOUT > $VIEWOUT
+        test_exit_status
+        >&2 echo running samtools sort  Output to $BAMOUT_S
+
+        # below, fails with 8Gb, succeeds with 16Gb
+        $SAMTOOLS sort -m 1G -@ 6 -o $BAMOUT_S -n -T $OUTD/tmpaln $VIEWOUT
+        test_exit_status
+    fi
+}
+
+function alignReadsPicard {
+    FQ1_P=$1
+    FQ2_P=$2
+    REFFA_P=$3
+    BAMOUT_P=$4  # this path is independent of $OUTD
+    OUTD_P=$5    # Intermediate stuff here.  
+    OPTIMIZE_P=$6
+
+    if [ $OPTIMIZE_P == 1 ]; then
+
+        >&2 echo Preparing BWA mem + SortSam optimization, then MarkDuplicates 
+
+        SORTSAM="$OUTD_P/$SAMPLE.SortSam.out"
+        TMPLIST="$TMPLIST $SORTSAM"
+
+        # BWA -> SortSam is piped, SortSam -> Mark written to file
+        # From http://broadinstitute.github.io/picard/faq.html
+        # for pipes: /dev/stdin
+        # MarkDuplicates cannot read input from STDIN
+
+        >&2 echo Running BWA mem + SortSam 
+        $BWA mem -t 8 -M -R "$BWAR" $REFFA_P $FQ1_P $FQ2_P | \
+        $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=$SORTSAM SORT_ORDER=coordinate 
+        test_exit_status
+
+        >&2 echo Running MarkDuplicates 
+        $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$BAMOUT_P  REMOVE_DUPLICATES=true  M=$OUTD_P/picard.remdup.metrics.txt ; test_exit_status
+
+    else
+
+        >&2 echo Starting BWA mem + SortSam + MarkDuplicates step by step
+
+        BWAOUT="$OUTD_P/$SAMPLE.BWA.out"
+        SORTSAM="$OUTD_P/$SAMPLE.SortSam.out"
+        TMPLIST="$TMPLIST $BWAOUT $SORTSAM"
+
+        >&2 echo running BWA mem, output to temp file $BWAOUT
+        $BWA mem -t 8 -M -R "$BWAR" $REFFA_P $FQ1_P $FQ2_P  > $BWAOUT ; test_exit_status
+
+        >&2 echo running picard SortSam, output to temp file $SORTSAM
+        $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=$SORTSAM SORT_ORDER=coordinate ; test_exit_status
+
+        >&2 echo running picard MarkDuplicates, output to final file $OUTFINAL
+        $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$BAMOUT_P  REMOVE_DUPLICATES=true  M=$OUTD_P/picard.remdup.metrics.txt ; test_exit_status
+    fi
+}
+
 # http://wiki.bash-hackers.org/howto/getopts_tutorial
-while getopts ":b:1:2:h:m:s:o:c" opt; do
+while getopts ":b:1:2:h:m:s:r:o:c" opt; do
   case $opt in
     b) 
       BAM=$OPTARG
@@ -44,6 +178,12 @@ while getopts ":b:1:2:h:m:s:o:c" opt; do
     m) 
       MMFA=$OPTARG
       echo "Setting Mouse reference $MMFA" >&2
+      ;;
+    r) 
+      REFFA=$OPTARG
+      ATQ=1 # align then quit
+      echo "Setting Reference $REFFA" >&2
+      echo "Quitting after alignment" >&2
       ;;
     s) 
       SAMPLE=$OPTARG
@@ -111,55 +251,13 @@ else
     fi
 fi
 
-# Make sure mouse and human references are defined and exist
-if [ -z $HGFA ]; then
-    >&2 echo Error: Human reference \(-h\) not defined
-    exit 1
+# ATQ is Align then Quit, using one provided reference
+if [ -z $ATQ ]; then
+    checkREF $HGFA "Human"
+    checkREF $MMFA "Mouse"
+else
+    checkREF $HGFA "Provided"
 fi
-if [ ! -e $HGFA ]; then
-    >&2 echo Error: Human reference does not exist: $HGFA
-    exit 1
-fi
-if [ -z $MMFA ]; then
-    >&2 echo Error: Mouse reference \(-m\) not defined
-    exit 1
-fi
-if [ ! -e $MMFA ]; then
-    >&2 echo Error: Human reference does not exist: $MMFA
-    exit 1
-fi
-
-
-function test_exit_status {
-	# Evaluate return value for chain of pipes; see https://stackoverflow.com/questions/90418/exit-shell-script-based-on-process-exit-code
-    # exit code 137 is fatal error signal 9: http://tldp.org/LDP/abs/html/exitcodes.html
-
-	rcs=${PIPESTATUS[*]}; 
-    for rc in ${rcs}; do 
-        if [[ $rc != 0 ]]; then 
-            >&2 echo Fatal error.  Exiting 
-            exit $rc; 
-        fi; 
-    done
-}
-
-# Convert BAM to two sorted FASTQ files
-# Usage: bam2fq BAM FQ1 FQ2
-function bam2fq {
-    MYBAM=$1 # input
-    MYFQ1=$2 # output
-    MYFQ2=$3 # output
-
-    >&2 echo Sorting $MYBAM, extracting FASTQs to $MYFQ1 and $MYFQ2 ...
-    >&2 echo    tmp: $OUTD/bam2fq-tmp
-#  no pipes equivalent
-#    $SAMTOOLS sort -m 1G -@ 6 -o $OUTD/$SAMPLE.sortbyname.bam -n $MYBAM
-#    $SAMTOOLS fastq $OUTD/$SAMPLE.sortbyname.bam -1 $MYFQ1 -2 $MYFQ2
-
-    $SAMTOOLS sort -m 1G -@ 6 -n $MYBAM -T $OUTD/bam2fq-tmp | $SAMTOOLS fastq -1 $MYFQ1 -2 $MYFQ2 -
-    test_exit_status
-    >&2 echo Done sorting.
-}
 
 >&2 echo MouseTrap2 starting...
 
@@ -177,52 +275,37 @@ else
     >&2 echo Input FASTQ provided
 fi
 
-BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 
+
+OPTIMIZE=1
 # bwa human align and sort
 # This requires > 5Gb memory
+
+if [ $ATQ == 1 ]; then
+
+    >&2 echo Aligning reads to provided reference...
+    OUT="$OUTD/$SAMPLE.bam"
+    TMPLIST="$TMPLIST $HGOUT"
+    alignReadsSamtools $FQ1 $FQ2 $HGFA $HGOUT $OUTD $OPTIMIZE
+
+fi
+
+
 >&2 echo Aligning reads to human reference...
 HGOUT="$OUTD/human.sort.bam"
 TMPLIST="$TMPLIST $HGOUT"
-
-OPTIMIZE=1
-
-if [ $OPTIMIZE == 1 ]; then
-# This is the original piped version.  Note failure may be due to memory requirements (>8Gb needed, 16Gb tested OK)
-$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human -
-
-else
-
-### Breaking up into individual steps for testing
-BWAOUT="$OUTD/BWA.out"
-VIEWOUT="$OUTD/VIEW.out"
-TMPLIST="$TMPLIST $BWAOUT $VIEWOUT"
->&2 echo running bwa mem step by step.  Output to $BWAOUT
-$BWA mem -t 4 -M -R $BWAR $HGFA $FQ1 $FQ2  > $BWAOUT
-test_exit_status
-
->&2 echo running samtools view  Output to $VIEWOUT
-$SAMTOOLS view -Sbh $BWAOUT > $VIEWOUT
-test_exit_status
->&2 echo running samtools sort  Output to $HGOUT
-
-# below, fails with 8Gb, succeeds with 16Gb
-$SAMTOOLS sort -m 1G -@ 6 -o $HGOUT -n -T $OUTD/human $VIEWOUT
-test_exit_status
-
-fi
+alignReadsSamtools $FQ1 $FQ2 $HGFA $HGOUT $OUTD $OPTIMIZE
 
 # bwa mouse align and sort.  Optimized pipeline in all cases
 >&2 echo Aligning reads to mouse reference...
 MMOUT="$OUTD/mouse.sort.bam"
 TMPLIST="$TMPLIST $MMOUT"
-$BWA mem -t 4 -M -R $BWAR $MMFA $FQ1 $FQ2 | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $MMOUT -n -T $OUTD/mouse -
-test_exit_status
+alignReadsSamtools $FQ1 $FQ2 $MMFA $MMOUT $OUTD $OPTIMIZE
 
 # mouse-filter - Disambiguate
 >&2 echo Running Disambiguate...
 $DISAMBIGUATE -s $SAMPLE -o $OUTD -a bwa $HGOUT $MMOUT
-# This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam for human and several other files
+# This writes $OUTD/$SAMPLE.disambiguatedSpeciesA.bam (used later) as well as the following:
 TMPLIST="$TMPLIST \
 $OUTD/$SAMPLE.disambiguatedSpeciesA.bam \
 $OUTD/$SAMPLE.disambiguatedSpeciesB.bam \
@@ -238,47 +321,8 @@ TMPLIST="$TMPLIST $FQA1 $FQA2"
 
 OUTFINAL="$OUTD/$SAMPLE.disambiguate_human.bam"
 
-# Optimization pipes output of BWA step to SortSam
 OPTIMIZE=1
-
-if [ $OPTIMIZE == 1 ]; then
-
-    >&2 echo Preparing BWA mem + SortSam optimization, then MarkDuplicates 
-
-    SORTSAM="$OUTD/$SAMPLE.SortSam.out"
-    TMPLIST="$TMPLIST $SORTSAM"
-
-    # BWA -> SortSam is piped, SortSam -> Mark written to file
-    # From http://broadinstitute.github.io/picard/faq.html
-    # for pipes: /dev/stdin
-    # MarkDuplicates cannot read input from STDIN
-
-    >&2 echo Running BWA mem + SortSam 
-    $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2 | \
-    $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=/dev/stdin O=$SORTSAM SORT_ORDER=coordinate 
-    test_exit_status
-
-    >&2 echo Running MarkDuplicates 
-    $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt ; test_exit_status
-
-else
-
-    >&2 echo Starting BWA mem + SortSam + MarkDuplicates step by step
-
-    BWAOUT="$OUTD/$SAMPLE.BWA.out"
-    SORTSAM="$OUTD/$SAMPLE.SortSam.out"
-    TMPLIST="$TMPLIST $BWAOUT $SORTSAM"
-
-    >&2 echo running BWA mem, output to temp file $BWAOUT
-    $BWA mem -t 8 -M -R "$BWAR" $HGFA $FQ1 $FQ2  > $BWAOUT ; test_exit_status
-
-    >&2 echo running picard SortSam, output to temp file $SORTSAM
-    $JAVA -Xmx8G -jar $PICARD_JAR SortSam I=$BWAOUT O=$SORTSAM SORT_ORDER=coordinate ; test_exit_status
-
-    >&2 echo running picard MarkDuplicates, output to final file $OUTFINAL
-    $JAVA -Xmx8G -jar $PICARD_JAR MarkDuplicates I=$SORTSAM O=$OUTFINAL  REMOVE_DUPLICATES=true  M=$OUTD/picard.remdup.metrics.txt ; test_exit_status
-
-fi
+alignReadsPicard $FQA1 $FQA2 $HGFA $OUTFINAL $OUTD $OPTIMIZE
 
 # index bam
 >&2 echo Indexing $OUTFINAL
@@ -291,3 +335,4 @@ if [ $CLEAN == 1 ]; then
 fi
 
 >&2 echo MouseTrap2 processing complete.  Results written to $OUTFINAL
+exit 0
