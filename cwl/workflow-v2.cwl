@@ -14,10 +14,6 @@ inputs:
     type: File
     'sbg:x': -11.00200366973877
     'sbg:y': -161.08416748046875
-  - id: normal_bam
-    type: File
-    'sbg:x': -8
-    'sbg:y': 58.068138122558594
   - id: varscan_config
     type: File
     'sbg:x': 0
@@ -45,8 +41,8 @@ inputs:
     'sbg:exposed': true
   - id: vep_cache_gz
     type: File?
-    'sbg:x': -17.006011962890625
-    'sbg:y': -289.1001892089844
+    'sbg:x': 1220.179443359375
+    'sbg:y': 33.649574279785156
   - id: vep_cache_version
     type: string?
     'sbg:exposed': true
@@ -56,8 +52,11 @@ inputs:
     'sbg:y': 400.80963134765625
   - id: input_pair
     type: 'File[]'
-    'sbg:x': -215.00401306152344
-    'sbg:y': 530.2905883789062
+    'sbg:x': -735.3251953125
+    'sbg:y': 662.1138305664062
+  - id: sample
+    type: string?
+    'sbg:exposed': true
 outputs:
   - id: output_dat
     outputSource:
@@ -71,7 +70,7 @@ steps:
       - id: tumor_bam
         source: mousetrap2/disambiguate_human
       - id: normal_bam
-        source: normal_bam
+        source: fq2bam/output
       - id: reference_fasta
         source: reference_fasta
       - id: strelka_config
@@ -87,7 +86,7 @@ steps:
       - id: tumor_bam
         source: mousetrap2/disambiguate_human
       - id: normal_bam
-        source: normal_bam
+        source: fq2bam/output
       - id: reference_fasta
         source: reference_fasta
       - id: varscan_config
@@ -119,6 +118,8 @@ steps:
         source: s2_run_varscan/varscan_snv_raw
       - id: dbsnp_db
         source: dbsnp_db
+      - id: varscan_config
+        source: varscan_config
     out:
       - id: varscan_snv_dbsnp
       - id: varscan_indel_dbsnp
@@ -131,7 +132,7 @@ steps:
       - id: tumor_bam
         source: mousetrap2/disambiguate_human
       - id: normal_bam
-        source: normal_bam
+        source: fq2bam/output
       - id: reference_fasta
         source: reference_fasta
       - id: centromere_bed
@@ -202,10 +203,10 @@ steps:
     in:
       - id: FQ1
         source:
-          - sbg_split_pair_by_metadata_v1/output_files_1
+          - sbg_split_pair_by_metadata_v2/output_files_1
       - id: FQ2
         source:
-          - sbg_split_pair_by_metadata_v1/output_files_2
+          - sbg_split_pair_by_metadata_v2/output_files_2
       - id: HGFA
         source: reference_fasta
       - id: MMFA
@@ -221,12 +222,66 @@ steps:
       - id: input_pair
         source:
           - input_pair
+      - id: metadata_criteria
+        default:
+          output_1: 'sample_type:normal'
+          output_2: 'sample_type:tumor'
     out:
       - id: output_files_1
       - id: output_files_2
     run: ../../SplitPairByMetadata/sbg-split-pair-by-metadata-v1.cwl
     label: SBG Split Pair by Metadata CWL
-    'sbg:x': -1.0020040273666382
-    'sbg:y': 529.2926025390625
+    'sbg:x': -450.1869812011719
+    'sbg:y': 661.1138305664062
+  - id: fq2bam
+    in:
+      - id: FQ1
+        source:
+          - sbg_split_pair_by_metadata_v3/output_files_1
+      - id: FQ2
+        source:
+          - sbg_split_pair_by_metadata_v3/output_files_2
+      - id: reference
+        source: reference_fasta
+      - id: sample
+        source: sample
+    out:
+      - id: output
+    run: ./fq2bam.cwl
+    label: fq2bam
+    'sbg:x': 254.37176513671875
+    'sbg:y': 776.1077270507812
+  - id: sbg_split_pair_by_metadata_v2
+    in:
+      - id: input_pair
+        source:
+          - sbg_split_pair_by_metadata_v1/output_files_2
+      - id: metadata_criteria
+        default:
+          output_1: 'paired_end:1'
+          output_2: 'paired_end:2'
+    out:
+      - id: output_files_1
+      - id: output_files_2
+    run: ../../SplitPairByMetadata/sbg-split-pair-by-metadata-v1.cwl
+    label: SBG Split Pair by Metadata CWL
+    'sbg:x': -141.9503936767578
+    'sbg:y': 650.610595703125
+  - id: sbg_split_pair_by_metadata_v3
+    in:
+      - id: input_pair
+        source:
+          - sbg_split_pair_by_metadata_v1/output_files_1
+      - id: metadata_criteria
+        default:
+          output_1: 'paired_end:1'
+          output_2: 'paired_end:2'
+    out:
+      - id: output_files_1
+      - id: output_files_2
+    run: ../../SplitPairByMetadata/sbg-split-pair-by-metadata-v1.cwl
+    label: SBG Split Pair by Metadata CWL
+    'sbg:x': -128.6840362548828
+    'sbg:y': 862.371337890625
 requirements: []
 'sbg:toolAuthor': 'Matthew Wyczalkowski, Hua Sun, Song Cao'

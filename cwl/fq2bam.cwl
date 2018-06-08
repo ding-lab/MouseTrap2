@@ -1,0 +1,45 @@
+class: CommandLineTool
+cwlVersion: v1.0
+$namespaces:
+  sbg: 'https://www.sevenbridges.com'
+id: fq2bam
+baseCommand:
+  - bash
+  - /usr/local/MouseTrap2/MouseTrap2.sh
+inputs:
+  - id: FQ1
+    type:
+      - File
+      - type: array
+        items: File
+    inputBinding:
+      position: 10
+  - id: FQ2
+    type:
+      - File
+      - type: array
+        items: File
+    inputBinding:
+      position: 11
+  - id: reference
+    type: File
+    inputBinding:
+      position: 0
+      prefix: '-r'
+  - id: sample
+    type: string?
+    inputBinding:
+      position: 0
+      prefix: '-s'
+    label: Sample name
+    doc: >-
+      Sample name is meant to identify different runs, and is used primarily for
+      naming output names.  It is incorporated into BAM file in MouseTrap2 and
+      fa2bam steps
+outputs:
+  - id: output
+    type: File?
+label: fq2bam
+requirements:
+  - class: DockerRequirement
+    dockerPull: 'cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest'
