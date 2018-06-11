@@ -7,28 +7,15 @@ baseCommand:
   - bash
   - /usr/local/MouseTrap2/MouseTrap2.sh
 inputs:
-  - id: BAM
-    type: File?
-    inputBinding:
-      position: 0
-      prefix: '-b'
-    label: PDX BAM file
-    doc: Require either one BAM or two FASTQs
   - id: FQ1
-    type:
-      - File
-      - type: array
-        items: File
+    type: File
     inputBinding:
       position: 0
       prefix: '-1'
     label: PDX FASTQ R1
     doc: Require either one BAM or two FASTQs
   - id: FQ2
-    type:
-      - File
-      - type: array
-        items: File
+    type: File
     inputBinding:
       position: 0
       prefix: '-2'
@@ -52,7 +39,7 @@ inputs:
       position: 0
       prefix: '-s'
 outputs:
-  - id: disambiguate_human
+  - id: disambiguate_human_bam
     type: File
     outputBinding:
       glob: '*.disambiguate_human.bam'
@@ -64,6 +51,7 @@ requirements:
     ramMin: 8000
   - class: DockerRequirement
     dockerPull: 'cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest'
+  - class: InlineJavascriptRequirement
 'sbg:job':
   inputs:
     BAM:

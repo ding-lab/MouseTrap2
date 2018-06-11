@@ -16,10 +16,14 @@ inputs:
     label: Mouse Reference
     'sbg:x': 170.4375
     'sbg:y': -150.171875
-  - id: input_pair
-    type: 'File[]'
-    'sbg:x': 10
-    'sbg:y': 104.828125
+  - id: FQ2
+    type: File
+    'sbg:x': 173.6796875
+    'sbg:y': 124.5
+  - id: FQ1
+    type: File
+    'sbg:x': 200.6796875
+    'sbg:y': 244.5
 outputs:
   - id: disambiguate_human
     outputSource:
@@ -31,11 +35,13 @@ steps:
   - id: mousetrap2
     in:
       - id: FQ1
+        linkMerge: merge_flattened
         source:
-          - sbg_split_pair_by_metadata_v2/output_files_1
+          - FQ1
       - id: FQ2
+        linkMerge: merge_flattened
         source:
-          - sbg_split_pair_by_metadata_v2/output_files_2
+          - FQ2
       - id: HGFA
         source: HGFA
       - id: MMFA
@@ -46,21 +52,5 @@ steps:
     label: MouseTrap2
     'sbg:x': 399.4483642578125
     'sbg:y': 39.4140625
-  - id: sbg_split_pair_by_metadata_v2
-    in:
-      - id: input_pair
-        source:
-          - input_pair
-      - id: metadata_criteria
-        default:
-          output_1: 'paired_end:1'
-          output_2: 'paired_end:2'
-    out:
-      - id: output_files_1
-      - id: output_files_2
-    run: ../../SplitPairByMetadata/sbg-split-pair-by-metadata-v1.cwl
-    label: SBG Split Pair by Metadata CWL
-    'sbg:x': 175.4375
-    'sbg:y': 107
 requirements: []
 'sbg:toolAuthor': 'Matthew Wyczalkowski, Hua Sun, Song Cao'

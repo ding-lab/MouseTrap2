@@ -11,6 +11,64 @@ Currently started script `launch.MouseTrap2.docker-MGI.realdata.sh`
   * Output in
     `/gscmnt/gc2508/dinglab/mwyczalk/MouseTrap2.data/results`
 
+# Testing of MouseTrap2.TinDaisy workflow
+
+## FASTQ input datasets
+
+Need sequence data as FASTQ read pairs, both tumor and normal (4 FASTQ files total)
+
+### NIX5.10K dataset
+```
+D=/Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat
+FQ1="$D/NIX5.10K.R1.fastq.gz"
+FQ2="$D/NIX5.10K.R2.fastq.gz"
+```
+
+This is a human + Mouse synthetic mixture, used for testing MouseTrap2.
+For now, these will serve as both tumor and normal
+
+```
+FQ1_TUMOR=$FQ1
+FQ2_TUMOR=$FQ2
+FQ1_NORMAL=$FQ1
+FQ2_NORMAL=$FQ2
+```
+
+### SBG data
+
+From Metadata code shared with me via email,
+```
+/Users/mwyczalk/Projects/Rabix/Metadata/pair_fastq/data
+-rw-r--r--  2 mwyczalk  staff  670572 May 23 10:07 SRR7030206_1_sm2.fastq
+-rw-r--r--  2 mwyczalk  staff  670572 May 23 10:07 SRR7030206_2_sm2.fastq
+-rw-r--r--  2 mwyczalk  staff   36433 May 23 10:03 example_human_Illumina.pe_1.fastq
+-rw-r--r--  2 mwyczalk  staff   36433 May 23 10:03 example_human_Illumina.pe_2.fastq
+```
+We are not using this currently
+
+### config data
+Here's a local installation of Somatic Wrapper.  Use those params
+`/Users/mwyczalk/Projects/Rabix/SomaticWrapper.d2/somaticwrapper/params`
+
+## Rest of it
+```
+Human Ref:
+/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference/GRCh37-lite.fa
+Mouse Ref:
+/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa
+Pindel Config:
+/Users/mwyczalk/Projects/Rabix/SomaticWrapper.d2/somaticwrapper/params/pindel.WES.ini
+Varscan Config:
+/Users/mwyczalk/Projects/Rabix/SomaticWrapper.d2/somaticwrapper/params/varscan.WES.ini
+Strelka Config:
+/Users/mwyczalk/Projects/Rabix/SomaticWrapper.d2/somaticwrapper/params/strelka.WES.ini
+Centromere BED: - none
+VEP Cache DB: - none
+dbSNP DB:
+/Users/mwyczalk/Data/SomaticWrapper/image/B_Filter/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz
+```
+
+
 ## Launch vs. Run
 
 
