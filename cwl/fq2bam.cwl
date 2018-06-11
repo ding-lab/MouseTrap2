@@ -23,7 +23,7 @@ inputs:
       position: 0
       prefix: '-r'
   - id: sample
-    type: string?
+    type: string
     inputBinding:
       position: 0
       prefix: '-s'
@@ -34,7 +34,7 @@ inputs:
       fa2bam steps
 outputs:
   - id: output
-    type: File?
+    type: File
     outputBinding:
       glob: '*.bam'
 label: fq2bam

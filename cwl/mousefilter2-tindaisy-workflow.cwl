@@ -65,6 +65,13 @@ inputs:
     type: File?
     'sbg:x': 79.5000228881836
     'sbg:y': -622.212890625
+  - id: SampleName
+    type: string
+    doc: >-
+      Arbitrary name which will form basis of output directory naming scheme. 
+      It is also incorporated into headers when aligning
+    'sbg:x': -768.0919799804688
+    'sbg:y': -54.6670036315918
 outputs:
   - id: output_dat
     outputSource:
@@ -83,6 +90,8 @@ steps:
       - id: FQ1
         source:
           - FQ1
+      - id: sample
+        source: SampleName
     out:
       - id: output
     run: ./fq2bam-workflow.cwl
@@ -99,6 +108,8 @@ steps:
         source: FQ2_PDX
       - id: FQ1
         source: FQ1_PDX
+      - id: SAMPLE
+        source: SampleName
     out:
       - id: disambiguate_human_bam
     run: ./RemoveMouseReads.workflow.cwl
@@ -132,6 +143,8 @@ steps:
       - id: assembly
         default: GRCh37
         source: assembly
+      - id: results_dir
+        source: SampleName
     out:
       - id: output_dat
     run: ../../TinDaisy/cwl/TinDaisy.workflow.cwl

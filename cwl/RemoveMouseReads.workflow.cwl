@@ -24,6 +24,9 @@ inputs:
     type: File
     'sbg:x': 200.6796875
     'sbg:y': 244.5
+  - id: SAMPLE
+    type: string
+    'sbg:exposed': true
 outputs:
   - id: disambiguate_human_bam
     outputSource:
@@ -46,6 +49,8 @@ steps:
         source: HGFA
       - id: MMFA
         source: MMFA
+      - id: SAMPLE
+        source: SAMPLE
     out:
       - id: disambiguate_human_bam
     run: ./mousetrap2.cwl

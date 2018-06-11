@@ -27,6 +27,10 @@ inputs:
         items: File
     'sbg:x': -147
     'sbg:y': 232
+  - id: sample
+    type: string?
+    'sbg:x': -14.8984375
+    'sbg:y': -73.5
 outputs:
   - id: output
     outputSource:
@@ -38,13 +42,13 @@ steps:
   - id: fq2bam
     in:
       - id: FQ1
-        source:
-          - FQ1
+        source: FQ1
       - id: FQ2
-        source:
-          - FQ2
+        source: FQ2
       - id: reference
         source: reference
+      - id: sample
+        source: sample
     out:
       - id: output
     run: ./fq2bam.cwl
