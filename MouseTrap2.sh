@@ -99,14 +99,14 @@ function alignReadsSamtools {
     if [ $OPTIMIZE_S == 1 ]; then
         >&2 echo Running optimized pipeline \`bwa mem \| samtools view \| samtools sort\`
     # This is the original piped version.  Note failure may be due to memory requirements (>8Gb needed, 16Gb tested OK)
-        $BWA mem -t 4 -M -R $BWAR $REFFA_S $FQ1_S $FQ2_S | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $BAMOUT_S -n -T $OUTD_S/tmpaln -
+        $BWA mem -t 8 -M -R "$BWAR" $REFFA_S $FQ1_S $FQ2_S | $SAMTOOLS view -Sbh - | $SAMTOOLS sort -m 1G -@ 6 -o $BAMOUT_S -n -T $OUTD_S/tmpaln -
     else
         ### Breaking up into individual steps for testing
         BWAOUT="$OUTD_S/BWA.out"
         VIEWOUT="$OUTD_S/VIEW.out"
         TMPLIST="$TMPLIST $BWAOUT $VIEWOUT"
         >&2 echo running bwa mem step by step.  Output to $BWAOUT
-        $BWA mem -t 4 -M -R $BWAR $REFFA_S $FQ1_S $FQ2_S  > $BWAOUT
+        $BWA mem -t 8 -M -R "$BWAR" $REFFA_S $FQ1_S $FQ2_S  > $BWAOUT
         test_exit_status
 
         >&2 echo running samtools view  Output to $VIEWOUT
@@ -298,7 +298,9 @@ if [ ! -z $ATQ  ]; then
     >&2 echo Aligning reads to provided reference...
     OUT="$OUTD/$SAMPLE.bam"
     TMPLIST="$TMPLIST $HGOUT"
-    alignReadsSamtools $FQ1 $FQ2 $REFFA $OUT $OUTD $OPTIMIZE
+    #alignReadsSamtools $FQ1 $FQ2 $REFFA $OUT $OUTD $OPTIMIZE
+    # Above does not seem to preserve all headers.  Using alignReadsPicard instead... 
+    alignReadsPicard $FQ1 $FQ2 $REFFA $OUT $OUTD $OPTIMIZE
     >&2 echo Indexing $OUT
     $SAMTOOLS index $OUT
     test_exit_status

@@ -13,6 +13,30 @@ Currently started script `launch.MouseTrap2.docker-MGI.realdata.sh`
 
 # Testing of MouseTrap2.TinDaisy workflow
 
+Most recent: /Users/mwyczalk/RabixComposer/Executions/local/mousefilter2-tindaisy-workflow/2018-06-11-00-43-42 
+```
+[2018-06-11 00:59:16.499] [INFO] Job root.workflow_v1_1.s1_run_strelka failed with exit code 38. with message:
+CONFIGURATION ERROR:
+Reference genome mismatch: normal BAM/CRAM file is missing a chromosome found in the reference fasta file: 'GL000224.1'
+
+bash: line 9: cd: ./strelka/strelka_out: No such file or directory
+bash: line 11: ./runWorkflow.py: No such file or directory
+Exiting (32512).
+
+[2018-06-11 00:59:16.520] [DEBUG] Job root.workflow_v1_1.s1_run_strelka, rootId: 1b94f58e-44e7-49ee-a8fd-0653729283c3 failed: Job root.workflow_v1_1.s1_run_strelka failed with exit code 38. with message:
+CONFIGURATION ERROR:
+Reference genome mismatch: normal BAM/CRAM file is missing a chromosome found in the reference fasta file: 'GL000224.1'
+
+bash: line 9: cd: ./strelka/strelka_out: No such file or directory
+bash: line 11: ./runWorkflow.py: No such file or directory
+Exiting (32512).
+```
+Output of MouseTrap2 has this 
+
+-> seems hgmm.bam does not have this
+-> mousetrap2/hgmm.disambiguate_human.bam does have this
+=> try alignReadsPicard instead
+
 ## FASTQ input datasets
 
 Need sequence data as FASTQ read pairs, both tumor and normal (4 FASTQ files total)
