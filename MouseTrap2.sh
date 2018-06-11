@@ -298,7 +298,7 @@ if [ ! -z $ATQ  ]; then
     >&2 echo Aligning reads to provided reference...
     OUT="$OUTD/$SAMPLE.bam"
     TMPLIST="$TMPLIST $HGOUT"
-    alignReadsSamtools $FQ1 $FQ2 $REFFA $HGOUT $OUTD $OPTIMIZE
+    alignReadsSamtools $FQ1 $FQ2 $REFFA $OUT $OUTD $OPTIMIZE
     >&2 echo Quitting after alignment.  Written to $OUT
     exit 0
 

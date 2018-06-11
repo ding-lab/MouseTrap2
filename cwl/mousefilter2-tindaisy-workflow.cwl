@@ -11,18 +11,12 @@ inputs:
     'sbg:x': -469.682861328125
     'sbg:y': -369.5
   - id: FQ2
-    type:
-      - File
-      - type: array
-        items: File
+    type: File
     label: Normal FASTQ 2
     'sbg:x': -465.53668212890625
     'sbg:y': -259.1880798339844
   - id: FQ1
-    type:
-      - File
-      - type: array
-        items: File
+    type: File
     label: Normal FASTQ 1
     'sbg:x': -466.28509521484375
     'sbg:y': -122.23890686035156
