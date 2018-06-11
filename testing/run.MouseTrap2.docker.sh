@@ -20,6 +20,12 @@ MMFA="/data1/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 OUTDIR="./results"
 mkdir -p $OUTDIR
 
-bash ../MouseTrap2.sh -c -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR
+SAMPLE="fastq2bam_test"
+
+# testing of FASTQ2BAM.  Use -G for no optimization
+bash ../MouseTrap2.sh -G -1 $FQ1 -2 $FQ2 -r $HGFA -o $OUTDIR -s $SAMPLE
+
+# regular testing
+#bash ../MouseTrap2.sh -c -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR
 #bash ../MouseTrap2.sh -1 $FQ1 -2 $FQ2 -r $HGFA -o $OUTDIR
 #bash ../MouseTrap2.sh -b $BAM -h $HGFA -m $MMFA -o $OUTDIR

@@ -18,11 +18,14 @@
 # -s sample: sample name.  Default is "hgmm"
 # -o outdir: output directory.  Default is '.'
 # -c: clean.  Remove temporary files after execution
+# -G: no optimize.  Use step-by-step processing instead of pipelines in `bwa mem` steps
+
 
 # SAMPLE is used extensively for filenames and BAM header
 SAMPLE="hgmm" # name of sample, arbitrary name
 OUTD="."  # output
 TMPLIST=""  # keep track of generated files, to be optionally deleted at the end
+OPTIMIZE=1
 
 function test_exit_status {
 	# Evaluate return value for chain of pipes; see https://stackoverflow.com/questions/90418/exit-shell-script-based-on-process-exit-code
@@ -70,8 +73,6 @@ function bam2fq {
     >&2 echo Done sorting.
 }
 
-# OPTIMIZE flag is used in alignReadsSamtools and alignReadsPicard (both  `bwa mem` steps) to implement `pipe` optimization
-# of the sort, `bwa mem | samtools view | samtools sort` and `bwa mem | picard SortSam`
 
 # bwa human align and sort
 # This requires > 5Gb memory
@@ -175,8 +176,11 @@ function alignReadsPicard {
     fi
 }
 
+# OPTIMIZE flag is used in alignReadsSamtools and alignReadsPicard (both  `bwa mem` steps) to implement `pipe` optimization
+# of the sort, `bwa mem | samtools view | samtools sort` and `bwa mem | picard SortSam`
+
 # http://wiki.bash-hackers.org/howto/getopts_tutorial
-while getopts ":b:1:2:h:m:s:r:o:c" opt; do
+while getopts ":b:1:2:h:m:s:r:o:cG" opt; do
   case $opt in
     b) 
       BAM=$OPTARG
@@ -215,6 +219,10 @@ while getopts ":b:1:2:h:m:s:r:o:c" opt; do
     c) 
       CLEAN=1
       echo "Removing temporary files when complete" >&2
+      ;;
+    G) 
+      OPTIMIZE=0
+      echo "Running pipelines step-by-step (no optimize)" >&2
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -294,7 +302,6 @@ else
     >&2 echo Input FASTQ provided
 fi
 
-OPTIMIZE=1
 if [ ! -z $ATQ  ]; then
 
     >&2 echo Aligning reads to provided reference...
