@@ -129,12 +129,14 @@ function alignReadsPicard {
     OPTIMIZE_P=$6
 
     >&2 echo TESTING alignReadsPicard
-    >&2 echo FQ1_S $FQ1_S
-    >&2 echo FQ2_S $FQ2_S
-    >&2 echo REFFA_S $REFFA_S
-    >&2 echo BAMOUT_S $BAMOUT_S
-    >&2 echo OUTD_S $OUTD_S
-    >&2 echo OPTIMIZE_S $OPTIMIZE_S
+    >&2 echo FQ1_P $FQ1_P
+    >&2 echo FQ2_P $FQ2_P
+    >&2 echo REFFA_P $REFFA_P
+    >&2 echo BAMOUT_P $BAMOUT_P
+    >&2 echo OUTD_P $OUTD_P
+    >&2 echo OPTIMIZE_P $OPTIMIZE_P
+
+    BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
 
     if [ $OPTIMIZE_P == 1 ]; then
 

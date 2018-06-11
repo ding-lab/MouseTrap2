@@ -36,6 +36,7 @@ Output of MouseTrap2 has this
 -> seems hgmm.bam does not have this
 -> mousetrap2/hgmm.disambiguate_human.bam does have this
 => try alignReadsPicard instead
+ -> picard dies with,
 
 ## FASTQ input datasets
 
