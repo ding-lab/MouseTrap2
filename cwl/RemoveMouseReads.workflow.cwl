@@ -1,6 +1,6 @@
 class: Workflow
 cwlVersion: v1.0
-id: workflow_v1_1
+id: _remove_mouse_reads
 doc: Washington University Mouse Filter and Somatic Caller toolset
 label: Remove Mouse Reads
 $namespaces:
@@ -25,12 +25,12 @@ inputs:
     'sbg:x': 200.6796875
     'sbg:y': 244.5
 outputs:
-  - id: disambiguate_human
+  - id: disambiguate_human_bam
     outputSource:
-      - mousetrap2/disambiguate_human
+      - mousetrap2/disambiguate_human_bam
     type: File
-    'sbg:x': 775.4286499023438
-    'sbg:y': 60.4140625
+    'sbg:x': 746.8125
+    'sbg:y': 45.5
 steps:
   - id: mousetrap2
     in:
@@ -47,7 +47,7 @@ steps:
       - id: MMFA
         source: MMFA
     out:
-      - id: disambiguate_human
+      - id: disambiguate_human_bam
     run: ./mousetrap2.cwl
     label: MouseTrap2
     'sbg:x': 399.4483642578125

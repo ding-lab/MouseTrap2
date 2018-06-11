@@ -35,6 +35,8 @@ inputs:
 outputs:
   - id: output
     type: File?
+    outputBinding:
+      glob: '*.bam'
 label: fq2bam
 requirements:
   - class: DockerRequirement

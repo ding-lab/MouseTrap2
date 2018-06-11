@@ -287,6 +287,8 @@ if [ $ATQ == 1 ]; then
     OUT="$OUTD/$SAMPLE.bam"
     TMPLIST="$TMPLIST $HGOUT"
     alignReadsSamtools $FQ1 $FQ2 $HGFA $HGOUT $OUTD $OPTIMIZE
+    >&2 echo Quitting after alignment.  Written to $OUT
+    exit 0
 
 fi
 
