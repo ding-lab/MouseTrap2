@@ -299,6 +299,9 @@ if [ ! -z $ATQ  ]; then
     OUT="$OUTD/$SAMPLE.bam"
     TMPLIST="$TMPLIST $HGOUT"
     alignReadsSamtools $FQ1 $FQ2 $REFFA $OUT $OUTD $OPTIMIZE
+    >&2 echo Indexing $OUT
+    $SAMTOOLS index $OUT
+    test_exit_status
     >&2 echo Quitting after alignment.  Written to $OUT
     exit 0
 
