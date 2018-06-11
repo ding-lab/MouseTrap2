@@ -39,5 +39,7 @@ outputs:
       glob: '*.bam'
 label: fq2bam
 requirements:
+  - class: ResourceRequirement
+    ramMin: 16000
   - class: DockerRequirement
     dockerPull: 'cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest'

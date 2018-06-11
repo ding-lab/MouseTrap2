@@ -12,31 +12,38 @@ Currently started script `launch.MouseTrap2.docker-MGI.realdata.sh`
     `/gscmnt/gc2508/dinglab/mwyczalk/MouseTrap2.data/results`
 
 # Testing of MouseTrap2.TinDaisy workflow
-
-Most recent: /Users/mwyczalk/RabixComposer/Executions/local/mousefilter2-tindaisy-workflow/2018-06-11-00-43-42 
+Most recent: /Users/mwyczalk/RabixComposer/Executions/local/mousefilter2-tindaisy-workflow/2018-06-11-01-43-53 
 ```
-[2018-06-11 00:59:16.499] [INFO] Job root.workflow_v1_1.s1_run_strelka failed with exit code 38. with message:
-CONFIGURATION ERROR:
-Reference genome mismatch: normal BAM/CRAM file is missing a chromosome found in the reference fasta file: 'GL000224.1'
+[2018-06-11 01:51:09.733] [INFO] Job root.fq2bam_workflow.fq2bam failed with exit code 137. with message: Setting FASTQ2 /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat/NIX5.10K.R2.fastq.gz
+Setting Reference /Users/mwyczalk/Data/SomaticWrapper/image/A_Reference/GRCh37-lite.fa
+Quitting after alignment
+Setting FASTQ1 /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat/NIX5.10K.R1.fastq.gz
+MouseTrap2 starting...
+Input FASTQ provided
+Aligning reads to provided reference...
+TESTING alignReadsPicard
+FQ1_P /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat/NIX5.10K.R1.fastq.gz
+FQ2_P /Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat/NIX5.10K.R2.fastq.gz
+REFFA_P /Users/mwyczalk/Data/SomaticWrapper/image/A_Reference/GRCh37-lite.fa
+BAMOUT_P ./hgmm.bam
+OUTD_P .
+OPTIMIZE_P 1
+Starting BWA mem + SortSam optimization, then MarkDuplicates
+Running BWA mem + SortSam
+06:47:33.997 INFO  NativeLibraryLoader - Loading libgkl_compression.so from jar:file:/opt/conda/share/picard-2.17.11-0/picard.jar!/com/intel/gkl/native/libgkl_compression.so
+[Mon Jun 11 06:47:34 UTC 2018] SortSam INPUT=/dev/stdin OUTPUT=./hgmm.SortSam.out SORT_ORDER=coordinate    VERBOSITY=INFO QUIET=false VALIDATION_STRINGENCY=STRICT COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false GA4GH_CLIENT_SECRETS=client_secrets.json USE_JDK_DEFLATER=false USE_JDK_INFLATER=false
+[Mon Jun 11 06:47:34 UTC 2018] Executing as ?@3bcf2164f70c on Linux 4.9.87-linuxkit-aufs amd64; OpenJDK 64-Bit Server VM 1.8.0_151-8u151-b12-0ubuntu0.16.04.2-b12; Deflater: Intel; Inflater: Intel; Picard version: 2.17.11-SNAPSHOT
+[M::bwa_idx_load_from_disk] read 0 ALT contigs
+[M::process] read 20000 sequences (2500000 bp)...
+INFO	2018-06-11 06:51:19	SortSam	Finished reading inputs, merging and writing to output now.
+[Mon Jun 11 06:51:19 UTC 2018] picard.sam.SortSam done. Elapsed time: 3.77 minutes.
+Runtime.totalMemory()=126877696
+Fatal error. Exiting
 
-bash: line 9: cd: ./strelka/strelka_out: No such file or directory
-bash: line 11: ./runWorkflow.py: No such file or directory
-Exiting (32512).
-
-[2018-06-11 00:59:16.520] [DEBUG] Job root.workflow_v1_1.s1_run_strelka, rootId: 1b94f58e-44e7-49ee-a8fd-0653729283c3 failed: Job root.workflow_v1_1.s1_run_strelka failed with exit code 38. with message:
-CONFIGURATION ERROR:
-Reference genome mismatch: normal BAM/CRAM file is missing a chromosome found in the reference fasta file: 'GL000224.1'
-
-bash: line 9: cd: ./strelka/strelka_out: No such file or directory
-bash: line 11: ./runWorkflow.py: No such file or directory
-Exiting (32512).
+[2018-06-11 01:51:09.760] [INFO] JobHandlerRunnable Job
 ```
-Output of MouseTrap2 has this 
-
--> seems hgmm.bam does not have this
--> mousetrap2/hgmm.disambiguate_human.bam does have this
-=> try alignReadsPicard instead
- -> picard dies with,
+-> It appears realignment of FASTQs to reference is failing in FQ2BAM step when Picard is used.
+TODO: debug alignment individually before running in workflow
 
 ## FASTQ input datasets
 

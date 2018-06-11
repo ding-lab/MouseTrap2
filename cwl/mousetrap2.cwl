@@ -48,7 +48,7 @@ outputs:
 label: MouseTrap2
 requirements:
   - class: ResourceRequirement
-    ramMin: 8000
+    ramMin: 16000
   - class: DockerRequirement
     dockerPull: 'cgc-images.sbgenomics.com/m_wyczalkowski/disambiguate:latest'
   - class: InlineJavascriptRequirement
