@@ -83,6 +83,14 @@ function alignReadsSamtools {
     OUTD_S=$5    # Intermediate stuff here
     OPTIMIZE_S=$6
 
+    >&2 echo TESTING alignReadsSamtools
+    >&2 echo FQ1_S $FQ1_S
+    >&2 echo FQ2_S $FQ2_S
+    >&2 echo REFFA_S $REFFA_S
+    >&2 echo BAMOUT_S $BAMOUT_S
+    >&2 echo OUTD_S $OUTD_S
+    >&2 echo OPTIMIZE_S $OPTIMIZE_S
+
     # Header applied during alignment
     BWAR="@RG\tID:$SAMPLE\tSM:$SAMPLE\tPL:illumina\tLB:$SAMPLE.lib\tPU:$SAMPLE.unit"
     TMPLIST="$TMPLIST $HGOUT"
@@ -119,6 +127,14 @@ function alignReadsPicard {
     BAMOUT_P=$4  # this path is independent of $OUTD
     OUTD_P=$5    # Intermediate stuff here.  
     OPTIMIZE_P=$6
+
+    >&2 echo TESTING alignReadsPicard
+    >&2 echo FQ1_S $FQ1_S
+    >&2 echo FQ2_S $FQ2_S
+    >&2 echo REFFA_S $REFFA_S
+    >&2 echo BAMOUT_S $BAMOUT_S
+    >&2 echo OUTD_S $OUTD_S
+    >&2 echo OPTIMIZE_S $OPTIMIZE_S
 
     if [ $OPTIMIZE_P == 1 ]; then
 
@@ -319,7 +335,6 @@ TMPLIST="$TMPLIST $FQA1 $FQA2"
 
 OUTFINAL="$OUTD/$SAMPLE.disambiguate_human.bam"
 
-OPTIMIZE=1
 alignReadsPicard $FQA1 $FQA2 $HGFA $OUTFINAL $OUTD $OPTIMIZE
 
 # index bam
