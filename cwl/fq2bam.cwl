@@ -8,19 +8,15 @@ baseCommand:
   - /usr/local/MouseTrap2/MouseTrap2.sh
 inputs:
   - id: FQ1
-    type:
-      - File
-      - type: array
-        items: File
+    type: File
     inputBinding:
       position: 10
+      prefix: '-1'
   - id: FQ2
-    type:
-      - File
-      - type: array
-        items: File
+    type: File
     inputBinding:
-      position: 11
+      position: 0
+      prefix: '-2'
   - id: reference
     type: File
     inputBinding:
