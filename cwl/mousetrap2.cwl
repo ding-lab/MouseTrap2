@@ -46,6 +46,9 @@ outputs:
     secondaryFiles:
       - .bai
 label: MouseTrap2
+arguments:
+  - position: 0
+    prefix: '-G'
 requirements:
   - class: ResourceRequirement
     ramMin: 16000

@@ -38,6 +38,9 @@ outputs:
     outputBinding:
       glob: '*.bam'
 label: fq2bam
+arguments:
+  - position: 0
+    prefix: '-c'
 requirements:
   - class: ResourceRequirement
     ramMin: 16000

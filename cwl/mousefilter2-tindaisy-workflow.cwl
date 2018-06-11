@@ -48,6 +48,23 @@ inputs:
     type: File
     'sbg:x': -94.74201965332031
     'sbg:y': 299.1309509277344
+  - id: output_vep
+    type: string?
+    'sbg:exposed': true
+  - id: centromere_bed
+    type: File?
+    'sbg:x': 133.1365966796875
+    'sbg:y': 347.47259521484375
+  - id: assembly
+    type: string
+    'sbg:exposed': true
+  - id: no_delete_temp
+    type: int?
+    'sbg:exposed': true
+  - id: vep_cache_gz
+    type: File?
+    'sbg:x': 79.5000228881836
+    'sbg:y': -622.212890625
 outputs:
   - id: output_dat
     outputSource:
@@ -102,8 +119,19 @@ steps:
         source: pindel_config
       - id: dbsnp_db
         source: dbsnp_db
+      - id: output_vep
+        source: output_vep
+      - id: centromere_bed
+        source: centromere_bed
+      - id: no_delete_temp
+        source: no_delete_temp
+      - id: vep_cache_gz
+        source: vep_cache_gz
       - id: tumor_bam
         source: _remove_mouse_reads/disambiguate_human_bam
+      - id: assembly
+        default: GRCh37
+        source: assembly
     out:
       - id: output_dat
     run: ../../TinDaisy/cwl/TinDaisy.workflow.cwl
