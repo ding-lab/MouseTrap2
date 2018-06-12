@@ -27,12 +27,28 @@ inputs:
       position: 0
       prefix: '-h'
     label: Human reference FASTA
+    secondaryFiles:
+      - ^.dict
+      - .amb
+      - .ann
+      - .bwt
+      - .fai
+      - .pac
+      - .sa
   - id: MMFA
     type: File
     inputBinding:
       position: 0
       prefix: '-m'
     label: Mouse reference FASTA
+    secondaryFiles:
+      - ^.dict
+      - .amb
+      - .ann
+      - .bwt
+      - .fai
+      - .pac
+      - .sa
   - id: SAMPLE
     type: string
     inputBinding:

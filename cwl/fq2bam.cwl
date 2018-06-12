@@ -22,6 +22,14 @@ inputs:
     inputBinding:
       position: 0
       prefix: '-r'
+    secondaryFiles:
+      - ^.dict
+      - .amb
+      - .ann
+      - .bwt
+      - .fai
+      - .pac
+      - .sa
   - id: sample
     type: string
     inputBinding:
