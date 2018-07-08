@@ -149,6 +149,7 @@ steps:
       - id: results_dir
         source: SampleName
       - id: is_strelka2
+        default: false
         source: is_strelka2
     out:
       - id: output_dat
