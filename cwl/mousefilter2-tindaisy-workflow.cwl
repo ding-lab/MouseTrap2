@@ -58,6 +58,9 @@ inputs:
   - id: assembly
     type: string
     'sbg:exposed': true
+  - id: is_strelka2
+    type: boolean?
+    'sbg:exposed': true
   - id: no_delete_temp
     type: int?
     'sbg:exposed': true
@@ -145,6 +148,8 @@ steps:
         source: assembly
       - id: results_dir
         source: SampleName
+      - id: is_strelka2
+        source: is_strelka2
     out:
       - id: output_dat
     run: ../../TinDaisy/cwl/TinDaisy.workflow.cwl
