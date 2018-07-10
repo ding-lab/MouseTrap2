@@ -68,6 +68,9 @@ inputs:
     type: File?
     'sbg:x': 79.5000228881836
     'sbg:y': -622.212890625
+  - id: vep_cache_version
+    type: string?
+    'sbg:exposed': true
   - id: SampleName
     type: string
     doc: >-
@@ -141,6 +144,8 @@ steps:
         source: no_delete_temp
       - id: vep_cache_gz
         source: vep_cache_gz
+      - id: vep_cache_version
+        source: vep_cache_version
       - id: tumor_bam
         source: _remove_mouse_reads/disambiguate_human_bam
       - id: assembly
