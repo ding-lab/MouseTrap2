@@ -12,8 +12,8 @@ RABIX_ARGS="--basedir $OUTD"
 
 
 # This is a test database associated with TinDaisy demo dataset
-DEMOD="/Users/mwyczalk/Projects/Rabix/TinDaisy/StrelkaDemo.dat"
-DBSNP_DB="$DEMOD/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
+DEMOD="../params"
+DBSNP_DB="StrelkaDemo.dat/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
 PINDEL_CONFIG="$DEMOD/pindel.WES.ini"
 VARSCAN_CONFIG="$DEMOD/varscan.WES.ini"
 STRELKA_CONFIG="$DEMOD/strelka.WES.ini"
