@@ -78,13 +78,44 @@ inputs:
       It is also incorporated into headers when aligning
     'sbg:x': -768.0919799804688
     'sbg:y': -54.6670036315918
-outputs:
-  - id: output_dat
-    outputSource:
-      - workflow_v1_1/output_dat
+  - id: varscan_vcf_filter_config
     type: File
-    'sbg:x': 937.1414794921875
-    'sbg:y': -175.2516632080078
+    'sbg:x': 329.0263977050781
+    'sbg:y': -589.2855224609375
+  - id: pindel_vcf_filter_config
+    type: File
+    'sbg:x': 207.93043518066406
+    'sbg:y': -418.2581787109375
+  - id: af_filter_config
+    type: File
+    'sbg:x': 379.6164855957031
+    'sbg:y': 126.0184097290039
+  - id: classification_filter_config
+    type: File
+    'sbg:x': 211.06561279296875
+    'sbg:y': 124.452880859375
+  - id: bypass_merge_vcf
+    type: boolean?
+    'sbg:exposed': true
+  - id: bypass_vep_annotate
+    type: boolean?
+    'sbg:exposed': true
+  - id: bypass_parse_pindel
+    type: boolean?
+    'sbg:exposed': true
+outputs:
+  - id: output_vcf
+    outputSource:
+      - workflow_v1_1/output_vcf
+    type: File
+    'sbg:x': 847.978271484375
+    'sbg:y': -312.859130859375
+  - id: merged_maf
+    outputSource:
+      - workflow_v1_1/merged_maf
+    type: File
+    'sbg:x': 852.86083984375
+    'sbg:y': -22.344951629638672
 steps:
   - id: fq2bam_workflow
     in:
@@ -136,28 +167,43 @@ steps:
         source: pindel_config
       - id: dbsnp_db
         source: dbsnp_db
-      - id: output_vep
-        source: output_vep
       - id: centromere_bed
         source: centromere_bed
       - id: no_delete_temp
         source: no_delete_temp
-      - id: vep_cache_gz
-        source: vep_cache_gz
-      - id: vep_cache_version
-        source: vep_cache_version
       - id: tumor_bam
         source: _remove_mouse_reads/disambiguate_human_bam
-      - id: assembly
-        default: GRCh37
-        source: assembly
       - id: results_dir
         source: SampleName
       - id: is_strelka2
         default: false
         source: is_strelka2
+      - id: pindel_vcf_filter_config
+        source: pindel_vcf_filter_config
+      - id: varscan_vcf_filter_config
+        source: varscan_vcf_filter_config
+      - id: strelka_vcf_filter_config
+        source: varscan_vcf_filter_config
+      - id: assembly
+        default: GRCh37
+        source: assembly
+      - id: vep_cache_version
+        source: vep_cache_version
+      - id: vep_cache_gz
+        source: vep_cache_gz
+      - id: bypass_merge_vcf
+        source: bypass_merge_vcf
+      - id: classification_filter_config
+        source: classification_filter_config
+      - id: af_filter_config
+        source: af_filter_config
+      - id: bypass_vep_annotate
+        source: bypass_vep_annotate
+      - id: bypass_parse_pindel
+        source: bypass_parse_pindel
     out:
-      - id: output_dat
+      - id: merged_maf
+      - id: output_vcf
     run: ../../TinDaisy/cwl/TinDaisy.workflow.cwl
     label: TinDaisy Workflow
     'sbg:x': 488.82086181640625
