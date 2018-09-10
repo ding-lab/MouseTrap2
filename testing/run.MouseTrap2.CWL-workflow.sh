@@ -13,14 +13,14 @@ RABIX_ARGS="--basedir $OUTD"
 
 # This is a test database associated with TinDaisy demo dataset
 DEMOD="../params"
-DBSNP_DB="StrelkaDemo.dat/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
+DBSNP_DB="test-data/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
 PINDEL_CONFIG="$DEMOD/pindel.WES.ini"
 VARSCAN_CONFIG="$DEMOD/varscan.WES.ini"
 STRELKA_CONFIG="$DEMOD/strelka.WES.ini"
 
 # reference stuff in /data1, test FASTQs in /data2
 DATA1="/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference"
-DATA2="/Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat"
+DATA2="./test-data"
 
 FQ1="$DATA2/NIX5.10K.R1.fastq.gz"
 FQ2="$DATA2/NIX5.10K.R2.fastq.gz"
@@ -38,10 +38,16 @@ ARGS="\
 --FQ2_PDX $FQ2 \
 --HGFA $HGFA \
 --MMFA $MMFA \
---pindel_config $PINDEL_CONFIG \
 --SampleName $SAMPLE \
+--pindel_config $PINDEL_CONFIG \
 --strelka_config $STRELKA_CONFIG \
---varscan_config $VARSCAN_CONFIG"
+--varscan_config $VARSCAN_CONFIG \
+--varscan_vcf_filter_config $DEMOD/vcf_filter_config.ini \
+--strelka_vcf_filter_config $DEMOD/vcf_filter_config.ini \
+--pindel_vcf_filter_config $DEMOD/pindel-vcf_filter_config.ini \
+--af_filter_config $DEMOD/af_filter_config.ini \
+--classification_filter_config $DEMOD/classification_filter_config.ini \
+"
 
 RABIX="rabix"
 CWL="../cwl/mousefilter2-tindaisy-workflow.cwl"

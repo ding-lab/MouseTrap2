@@ -103,6 +103,10 @@ inputs:
   - id: bypass_parse_pindel
     type: boolean?
     'sbg:exposed': true
+  - id: strelka_vcf_filter_config
+    type: File
+    'sbg:x': 231.86190795898438
+    'sbg:y': -693.0210571289062
 outputs:
   - id: output_vcf
     outputSource:
@@ -183,7 +187,7 @@ steps:
       - id: varscan_vcf_filter_config
         source: varscan_vcf_filter_config
       - id: strelka_vcf_filter_config
-        source: varscan_vcf_filter_config
+        source: strelka_vcf_filter_config
       - id: assembly
         default: GRCh37
         source: assembly
