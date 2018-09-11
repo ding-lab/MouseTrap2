@@ -30,7 +30,6 @@ inputs:
 outputs:
   - id: disambiguate_human_bam
     outputSource:
-      - mousetrap2/disambiguate_human_bam
       - disambiguate_filter/disambiguate_human_bam
     type: File
     'sbg:x': 746.8125
