@@ -58,7 +58,7 @@ This should run for a few seconds and then produce output like,
 Install Rabix Composer (optional but recommended)
 
 
-## Log into CGC
+## CGC Image
 
 In some cases (all?) it is necessary to log into CGC to pull latest somatic-wrapper image.  To do this,
 `docker login cgc-images.sbgenomics.com`
@@ -69,15 +69,28 @@ It is often necessary to do a `docker pull` to update the docker image.
 docker pull cgc-images.sbgenomics.com/m_wyczalkowski/somatic-wrapper:20180910
 ```
 
+## Edit `project_config.sh`
+
+The `project_config.sh` file contains definitions needed for every project.  By default, it has
+configuration files needed to run the NIX5.10K dataset (described below); however, before proceeding,
+it is necessary to define the locations of the human (`HGFA`) and mouse (`MMFA`) references.  On
+Denali these can be found here: `/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference`.
+
+### Cache
+For production runs it is necessary to also define the parameters `VEP_CACHE_GZ`, `VEP_CACHE_VERSION`, and `ASSEMBLY`.
+Then make sure `CACHE` is included in the `ARGS` list in the file `run.MouseTrap2.sh`.
+
 ## Run MouseTrap2 on test dataset
-To run the entire MouseTrap2 workflow on a test dataset (named "NIX5"),
+To run the entire MouseTrap2 workflow on a test dataset (named "NIX5.10K"),
 ```
 bash run.MouseTrap2.sh
 ```
-This will run for about 30 minutes.  Note that need to prep references *TODO* 
+This will run for about 30 minutes.  
 
-# Old notes below (TODO)
+Running with real data is similar, with different FASTQs and possibly other parameters defined.
 
+
+# Old notes below (TODO: update these)
 
 ## FASTQ input datasets
 
