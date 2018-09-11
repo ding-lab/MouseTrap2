@@ -85,7 +85,8 @@ To run the entire MouseTrap2 workflow on a test dataset (named "NIX5.10K"),
 ```
 bash run.MouseTrap2.sh
 ```
-This will run for about 30 minutes.  
+This will run for about 30 minutes.  Note that TinDaisy will not find any variants for this dataset, but
+it will exercise various parts of the pipeline (to that end, it should be updated with something that has real variants).
 
 Running with real data is similar, with different FASTQs and possibly other parameters defined.
 
