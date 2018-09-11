@@ -1,5 +1,7 @@
 # MouseTrap2: A better mouse filter
 
+git clone --recursive https://github.com/ding-lab/MouseTrap2
+
 # Notes about MGI testing (ongoing)
 
 Currently started script `launch.MouseTrap2.docker-MGI.realdata.sh`

@@ -56,7 +56,7 @@ inputs:
     'sbg:x': 133.1365966796875
     'sbg:y': 347.47259521484375
   - id: assembly
-    type: string
+    type: string?
     'sbg:exposed': true
   - id: is_strelka2
     type: boolean?
