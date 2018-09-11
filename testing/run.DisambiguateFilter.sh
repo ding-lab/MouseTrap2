@@ -23,7 +23,7 @@ mkdir -p $OUTDIR
 SAMPLE="fastq2bam_test"
 
 # testing of FASTQ2BAM.  Use -G for no optimization
-bash ../MouseTrap2.sh -G -1 $FQ1 -2 $FQ2 -r $HGFA -o $OUTDIR -s $SAMPLE
+bash src/DisambiguateFilter.sh -G -1 $FQ1 -2 $FQ2 -r $HGFA -o $OUTDIR -s $SAMPLE
 
 # regular testing
 #bash ../MouseTrap2.sh -c -1 $FQ1 -2 $FQ2 -h $HGFA -m $MMFA -o $OUTDIR

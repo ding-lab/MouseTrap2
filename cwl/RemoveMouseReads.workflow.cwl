@@ -31,11 +31,12 @@ outputs:
   - id: disambiguate_human_bam
     outputSource:
       - mousetrap2/disambiguate_human_bam
+      - disambiguate_filter/disambiguate_human_bam
     type: File
     'sbg:x': 746.8125
     'sbg:y': 45.5
 steps:
-  - id: mousetrap2
+  - id: disambiguate_filter
     in:
       - id: FQ1
         linkMerge: merge_flattened
@@ -53,8 +54,8 @@ steps:
         source: SAMPLE
     out:
       - id: disambiguate_human_bam
-    run: ./mousetrap2.cwl
-    label: MouseTrap2
+    run: ./disambiguate_filter.cwl
+    label: disambiguate_filter
     'sbg:x': 399.4483642578125
     'sbg:y': 39.4140625
 requirements: []

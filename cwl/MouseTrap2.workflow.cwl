@@ -1,7 +1,7 @@
 class: Workflow
 cwlVersion: v1.0
-id: mousefilter2_tindaisy_workflow
-label: MouseFilter2.TinDaisy.workflow
+id: mousetrap2_workflow
+label: MouseTrap2.workflow
 $namespaces:
   sbg: 'https://www.sevenbridges.com'
 inputs:
@@ -110,13 +110,13 @@ inputs:
 outputs:
   - id: output_vcf
     outputSource:
-      - workflow_v1_1/output_vcf
+      - TinDaisy/output_vcf
     type: File
     'sbg:x': 847.978271484375
     'sbg:y': -312.859130859375
   - id: merged_maf
     outputSource:
-      - workflow_v1_1/merged_maf
+      - TinDaisy/merged_maf
     type: File
     'sbg:x': 852.86083984375
     'sbg:y': -22.344951629638672
@@ -157,7 +157,7 @@ steps:
     label: Remove Mouse Reads
     'sbg:x': -247.90966796875
     'sbg:y': 13.230426788330078
-  - id: workflow_v1_1
+  - id: TinDaisy
     in:
       - id: strelka_config
         source: strelka_config

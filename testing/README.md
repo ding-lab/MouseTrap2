@@ -3,6 +3,26 @@
   * TODO: create small test dataset with variants and mouse read contamination 
 * Scripts here are designed to test MouseTrap2 in various contexts
 
+# Test scripts
+
+## Running within docker
+
+The most straightforward way to run DisambiguateFilter.sh is from within a docker container.
+
+* `launch_docker.sh` will start a docker container and allow user to run interactive (bash) session in it.
+    * Once in interactive session within container, can execute `run.DisambiguateFilter.sh` within it
+* `launch_docker.DisambiguateFilter.sh` will start docker container and run DisambiguateFilter.sh
+  within it directly.
+
+## Running using CWL
+
+CWL tools and workflows are run directly from host computer using `rabix`, without need to explicitly
+start docker container.  These come in two flavors:
+
+**rename MouseTrap2 to DisambiguateFilter**
+
+* :
+
 
 ## Test Data: NIX5.10K
 

@@ -5,7 +5,7 @@ $namespaces:
 id: fq2bam
 baseCommand:
   - bash
-  - /usr/local/MouseTrap2/MouseTrap2.sh
+  - /usr/local/MouseTrap2/src/DisambiguateFilter.sh
 inputs:
   - id: FQ1
     type: File

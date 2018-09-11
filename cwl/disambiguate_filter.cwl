@@ -2,10 +2,10 @@ class: CommandLineTool
 cwlVersion: v1.0
 $namespaces:
   sbg: 'https://www.sevenbridges.com'
-id: mousetrap2
+id: disambiguate_filter
 baseCommand:
   - bash
-  - /usr/local/MouseTrap2/MouseTrap2.sh
+  - /usr/local/MouseTrap2/src/DisambiguateFilter.sh
 inputs:
   - id: FQ1
     type: File
@@ -61,7 +61,7 @@ outputs:
       glob: '*.disambiguate_human.bam'
     secondaryFiles:
       - .bai
-label: MouseTrap2
+label: disambiguate_filter
 arguments:
   - position: 0
     prefix: '-G'
