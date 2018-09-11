@@ -2,6 +2,15 @@
 
 MouseTrap2 is a mouse read filter and variant caller for PDX WES / WXS data.
 
+It consists of two components:
+
+* `src/DisambiguateFilter.sh` is a multi-step script which aligns FASTQ to human and mouse references, calls Disambiguate
+to remove mouse reads, and regenerates putative human-only BAM.  You can see an illustration of how it works [here](docs/DisambiguateFilter.png)
+* `./tin-daisy` is the TinDaisy somatic caller which processes output of above to generate filtered VCFs
+
+The entire CWL workflow may be examined and edited using [Rabix Composer](http://rabix.io/).  In particular, see the
+CWL workflow and tool definitions in `./cwl` and `./tin-daisy/cwl`.
+
 ## Installation
 MouseTrap2 requires several packages to run.
 
