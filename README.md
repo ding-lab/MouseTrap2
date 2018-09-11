@@ -1,17 +1,73 @@
 # MouseTrap2: A better mouse filter
 
+MouseTrap2 is a mouse read filter and variant caller for PDX WES / WXS data.
+
+## Installation
+MouseTrap2 requires several packages to run.
+
+**[Install Docker](https://www.docker.com/community-edition)**
+Be sure it is running before running `rabix`.
+
+**Install [MouseTrap2](https://github.com/ding-lab/MouseTrap2)**
+```
 git clone --recursive https://github.com/ding-lab/MouseTrap2
+```
+Note this will install [TinDaisy](https://github.com/ding-lab/tin-daisy) as a submodule in the `MouseTrap2/tin-daisy` directory.
 
-# Notes about MGI testing (ongoing)
+**[Install Rabix Executor](https://github.com/rabix/bunny)**
+```
+wget https://github.com/rabix/bunny/releases/download/v1.0.5-1/rabix-1.0.5.tar.gz -O rabix-1.0.5.tar.gz && tar -xvf rabix-1.0.5.tar.gz
+```
 
-Currently started script `launch.MouseTrap2.docker-MGI.realdata.sh`
-* analysis of data provided by Hua:
-  `/gscmnt/gc2612/whim_pdx_hamlet_xenograft/model_data/f8cc6fae4e784e41864b680d679246f8/build2ac9536b9e6b43f3a568baffb5974d40/alignments/94bf7538283c4e06b7e789b1d0eb848b.bam`
-  * Huas results:
-  `/gscmnt/gc2737/ding/hsun/pdx/test.disambiguate_somaticWrapper/wxs_disam_sw_plus/human_mouse/346`
-* Script started 6/3/18
-  * Output in
-    `/gscmnt/gc2508/dinglab/mwyczalk/MouseTrap2.data/results`
+Test Rabix Executor with,
+```
+cd rabix-cli-1.0.5
+./rabix examples/dna2protein/dna2protein.cwl.json examples/dna2protein/inputs.json
+```
+This should run for a few seconds and then produce output like,
+```
+[2018-04-20 14:38:24.655] [INFO] Job root.Translate has completed
+{
+  "output_protein" : {
+    "basename" : "protein.txt",
+    "checksum" : "sha1$55adf0ec2ecc6aee57a774d48216ac5a97d6e5ba",
+    "class" : "File",
+    "contents" : null,
+    "dirname" : "/Users/mwyczalk/tmp/tin-daisy/rabix-cli-1.0.5/examples/dna2protein/dna2protein.cwl-2018-04-20-143817.231/root/Translate",
+    "format" : null,
+    "location" : "file:///Users/mwyczalk/tmp/tin-daisy/rabix-cli-1.0.5/examples/dna2protein/dna2protein.cwl-2018-04-20-143817.231/root/Translate/protein.txt",
+    "metadata" : null,
+    "nameext" : ".txt",
+    "nameroot" : "protein",
+    "path" : "/Users/mwyczalk/tmp/tin-daisy/rabix-cli-1.0.5/examples/dna2protein/dna2protein.cwl-2018-04-20-143817.231/root/Translate/protein.txt",
+    "secondaryFiles" : [ ],
+    "size" : 9
+  }
+}
+```
+
+Install Rabix Composer (optional but recommended)
+
+
+## Log into CGC
+
+In some cases (all?) it is necessary to log into CGC to pull latest somatic-wrapper image.  To do this,
+`docker login cgc-images.sbgenomics.com`
+Username is normal, password is token string obtained from CGC: https://cgc.sbgenomics.com
+
+It is often necessary to do a `docker pull` to update the docker image.
+```
+docker pull cgc-images.sbgenomics.com/m_wyczalkowski/somatic-wrapper:20180910
+```
+
+## Run MouseTrap2 on test dataset
+To run the entire MouseTrap2 workflow on a test dataset (named "NIX5"),
+```
+bash run.MouseTrap2.sh
+```
+This will run for about 30 minutes.  Note that need to prep references *TODO* 
+
+# Old notes below (TODO)
 
 
 ## FASTQ input datasets
@@ -99,7 +155,7 @@ These files were downloaded from MGI and processed with scripts like those here:
 Note that this processing took place within the docker container described below, which 
 has the necessary tools, and which was run with `run_docker_adhoc.sh`.
 
-## Test Data
+## Test Data: NIX5.10K
 
 The `NIX5.10K` dataset consists of the first 10K reads of the `14311X5` sample.  It is obtained from
 `/gscuser/mwyczalk/projects/PDXnet/MouseTrap2/TestData/dat`
