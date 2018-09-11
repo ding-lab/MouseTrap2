@@ -73,8 +73,8 @@ inputs:
     doc: >-
       Arbitrary name which will form basis of output directory naming scheme. 
       It is also incorporated into headers when aligning
-    'sbg:x': -768.0919799804688
-    'sbg:y': -54.6670036315918
+    'sbg:x': -865.9449462890625
+    'sbg:y': -150.0244598388672
   - id: varscan_vcf_filter_config
     type: File
     'sbg:x': 329.0263977050781
@@ -118,42 +118,6 @@ outputs:
     'sbg:x': 852.86083984375
     'sbg:y': -22.344951629638672
 steps:
-  - id: fq2bam_workflow
-    in:
-      - id: reference
-        source: HGFA
-      - id: FQ2
-        source:
-          - FQ2
-      - id: FQ1
-        source:
-          - FQ1
-      - id: sample
-        source: SampleName
-    out:
-      - id: output
-    run: ./fq2bam-workflow.cwl
-    label: FQ2BAM.workflow
-    'sbg:x': -253
-    'sbg:y': -194
-  - id: _remove_mouse_reads
-    in:
-      - id: HGFA
-        source: HGFA
-      - id: MMFA
-        source: MMFA
-      - id: FQ2
-        source: FQ2_PDX
-      - id: FQ1
-        source: FQ1_PDX
-      - id: SAMPLE
-        source: SampleName
-    out:
-      - id: disambiguate_human_bam
-    run: ./RemoveMouseReads.workflow.cwl
-    label: Remove Mouse Reads
-    'sbg:x': -247.90966796875
-    'sbg:y': 13.230426788330078
   - id: TinDaisy
     in:
       - id: strelka_config
@@ -161,7 +125,7 @@ steps:
       - id: reference_fasta
         source: HGFA
       - id: normal_bam
-        source: fq2bam_workflow/output
+        source: fq2bam/output
       - id: varscan_config
         source: varscan_config
       - id: pindel_config
@@ -173,7 +137,7 @@ steps:
       - id: no_delete_temp
         source: no_delete_temp
       - id: tumor_bam
-        source: _remove_mouse_reads/disambiguate_human_bam
+        source: disambiguate_filter/disambiguate_human_bam
       - id: results_dir
         source: SampleName
       - id: is_strelka2
@@ -209,5 +173,39 @@ steps:
     label: TinDaisy Workflow
     'sbg:x': 488.82086181640625
     'sbg:y': -154.65476989746094
+  - id: disambiguate_filter
+    in:
+      - id: FQ1
+        source: FQ1_PDX
+      - id: FQ2
+        source: FQ2_PDX
+      - id: HGFA
+        source: HGFA
+      - id: MMFA
+        source: MMFA
+      - id: SAMPLE
+        source: SampleName
+    out:
+      - id: disambiguate_human_bam
+    run: ./disambiguate_filter.cwl
+    label: disambiguate_filter
+    'sbg:x': -171
+    'sbg:y': 73
+  - id: fq2bam
+    in:
+      - id: FQ1
+        source: FQ1
+      - id: FQ2
+        source: FQ2
+      - id: reference
+        source: HGFA
+      - id: sample
+        source: SampleName
+    out:
+      - id: output
+    run: ./fq2bam.cwl
+    label: fq2bam
+    'sbg:x': -152.4342498779297
+    'sbg:y': -137.6850128173828
 requirements:
   - class: SubworkflowFeatureRequirement
