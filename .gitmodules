@@ -1,0 +1,3 @@
+[submodule "tin-daisy"]
+	path = tin-daisy
+	url = https://github.com/ding-lab/tin-daisy

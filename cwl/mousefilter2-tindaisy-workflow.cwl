@@ -208,7 +208,7 @@ steps:
     out:
       - id: merged_maf
       - id: output_vcf
-    run: ../../TinDaisy/cwl/TinDaisy.workflow.cwl
+    run: ../tin-daisy/cwl/TinDaisy.workflow.cwl
     label: TinDaisy Workflow
     'sbg:x': 488.82086181640625
     'sbg:y': -154.65476989746094
