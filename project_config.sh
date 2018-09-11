@@ -26,7 +26,10 @@ FQ2="$DATA2/NIX5.10K.R2.fastq.gz"
 
 HGFA="$DATA1/GRCh37-lite.fa"
 MMFA="$DATA1/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
-ASSEMBLY="GRCh37"
 
 DBSNP_DB="$DATA2/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
 
+# if using cache (recommended for production)
+VEP_CACHE_GZ="/diskmnt/Projects/Users/mwyczalk/data/docker/data/D_VEP/vep-cache.90_GRCh37.tar.gz"
+VEP_CACHE_VERSION="90"
+ASSEMBLY="GRCh37"

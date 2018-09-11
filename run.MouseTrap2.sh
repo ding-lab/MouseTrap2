@@ -2,8 +2,14 @@
 
 source project_config.sh
 
-ARGS="\
+# This is optional; remove this for online VEP db lookups
+CACHE="\
+--vep_cache_gz $VEP_CACHE_GZ \
+--vep_cache_version $VEP_CACHE_VERSION \
 --assembly $ASSEMBLY \
+"
+
+ARGS="\
 --dbsnp_db $DBSNP_DB \
 --FQ1 $FQ1 \
 --FQ2 $FQ2 \
@@ -21,6 +27,7 @@ ARGS="\
 --af_filter_config $AF_FILTER_CONFIG \
 --classification_filter_config $CLASSIFICATION_FILTER_CONFIG \
 "
+# $CACHE \
 
 RABIX="rabix"
 CWL="cwl/mousefilter2-tindaisy-workflow.cwl"
