@@ -48,9 +48,6 @@ inputs:
     type: File
     'sbg:x': -94.74201965332031
     'sbg:y': 299.1309509277344
-  - id: output_vep
-    type: string?
-    'sbg:exposed': true
   - id: centromere_bed
     type: File?
     'sbg:x': 133.1365966796875

@@ -16,14 +16,14 @@ The most straightforward way to run DisambiguateFilter.sh is from within a docke
 
 ## Running using CWL
 
-CWL tools and workflows are run directly from host computer using `rabix`, without need to explicitly
-start docker container.  These come in two flavors:
+CWL tools and workflows are run directly from host computer using `rabix`, without explicitly
+starting docker container.  
 
-**rename MouseTrap2 to DisambiguateFilter**
+* `run.DisambiguateFilter-CWL.sh` will execute the DisambiguateFilter CWL tool
+* `../run.MouseTrap2.sh` will execute the DisambiguateFilter tool followed by the TinDaisy workflow
 
-* :
 
-
+# Test Data
 ## Test Data: NIX5.10K
 
 The `NIX5.10K` dataset consists of the first 10K reads of the `14311X5` sample.  It is obtained from

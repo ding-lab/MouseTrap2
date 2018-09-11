@@ -1,8 +1,8 @@
-# Run MouseTrap2 filter on BAM / FASTQ files.  Removes mouse reads and returns human-only BAM
+# Run DisambiguateFilter on BAM / FASTQ files.  Removes mouse reads and returns human-only BAM
 # Usage:
-# MouseTrap2.sh [arguments] 
+# DisambiguateFilter.sh [arguments] 
 #
-# MouseTrap2.sh will process either one BAM file or two FASTQ files; require either a BAM (-b)
+# DisambiguateFilter.sh will process either one BAM file or two FASTQ files; require either a BAM (-b)
 # or two FASTQs (-1, -2) to be passed.
 # Output:
 #       OUTD/SAMPLE.disambiguate_human.bam
@@ -184,52 +184,52 @@ while getopts ":b:1:2:h:m:s:r:o:cG" opt; do
   case $opt in
     b) 
       BAM=$OPTARG
-      echo "Setting BAM file $BAM" >&2
+      >&2 echo "Setting BAM file $BAM" >&2
       ;;
     1) 
       FQ1=$OPTARG
-      echo "Setting FASTQ1 $FQ1" >&2
+      >&2 echo "Setting FASTQ1 $FQ1" >&2
       ;;
     2) 
       FQ2=$OPTARG
-      echo "Setting FASTQ2 $FQ2" >&2
+      >&2 echo "Setting FASTQ2 $FQ2" >&2
       ;;
     h) 
       HGFA=$OPTARG
-      echo "Setting Human reference $HGFA" >&2
+      >&2 echo "Setting Human reference $HGFA" >&2
       ;;
     m) 
       MMFA=$OPTARG
-      echo "Setting Mouse reference $MMFA" >&2
+      >&2 echo "Setting Mouse reference $MMFA" >&2
       ;;
     r) 
       REFFA=$OPTARG
       ATQ=1 # align then quit
-      echo "Setting Reference $REFFA" >&2
-      echo "Quitting after alignment" >&2
+      >&2 echo "Setting Reference $REFFA" >&2
+      >&2 echo "Quitting after alignment" >&2
       ;;
     s) 
       SAMPLE=$OPTARG
-      echo "Setting sample name $SAMPLE" >&2
+      >&2 echo "Setting sample name $SAMPLE" >&2
       ;;
     o) 
       OUTD=$OPTARG
-      echo "Setting output directory $OUTD" >&2
+      >&2 echo "Setting output directory $OUTD" >&2
       ;;
     c) 
       CLEAN=1
-      echo "Removing temporary files when complete" >&2
+      >&2 echo "Removing temporary files when complete" >&2
       ;;
     G) 
       OPTIMIZE=0
-      echo "Running pipelines step-by-step (no optimize)" >&2
+      >&2 echo "Running pipelines step-by-step (no optimize)" >&2
       ;;
     \?)
-      echo "Invalid option: -$OPTARG" >&2
+      >&2 echo "Invalid option: -$OPTARG" >&2
       exit 1
       ;;
     :)
-      echo "Option -$OPTARG requires an argument." >&2
+      >&2 echo "Option -$OPTARG requires an argument." >&2
       exit 1
       ;;
   esac
@@ -286,7 +286,7 @@ else
     checkREF $REFFA "Provided"
 fi
 
->&2 echo MouseTrap2 starting...
+>&2 echo DisambiguateFilter starting...
 
 # Create output diretory and make sure it succeeded
 mkdir -p $OUTD
@@ -361,5 +361,5 @@ if [ ! -z $CLEAN ]; then
     rm -f $TMPLIST
 fi
 
->&2 echo MouseTrap2 processing complete.  Results written to $OUTFINAL
+>&2 echo DisambiguateFilter processing complete.  Results written to $OUTFINAL
 exit 0

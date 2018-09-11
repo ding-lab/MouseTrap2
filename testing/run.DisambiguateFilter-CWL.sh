@@ -1,5 +1,5 @@
 RABIX="rabix"
-CWL="../cwl/mousetrap2.cwl"
+CWL="../cwl/disambiguate_filter.cwl"
 
 # try to have all output go to output_dir
 OUTD="results"
@@ -9,7 +9,7 @@ RABIX_ARGS="--basedir $OUTD"
 # reference stuff in /data1
 DATA1="/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference"
 # test FASTQs in /data2
-DATA2="/Users/mwyczalk/Projects/Rabix/MouseTrap2/test-dat"
+DATA2="/Users/mwyczalk/Projects/Rabix/MouseTrap2/testing/test-data"
 
 FQ1="$DATA2/NIX5.10K.R1.fastq.gz"
 FQ2="$DATA2/NIX5.10K.R2.fastq.gz"

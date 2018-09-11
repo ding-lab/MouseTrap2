@@ -30,6 +30,6 @@ ARGS="\
 # $CACHE \
 
 RABIX="rabix"
-CWL="cwl/mousefilter2-tindaisy-workflow.cwl"
+CWL="cwl/MouseTrap2.workflow.cwl"
 
 $RABIX $RABIX_ARGS $CWL -- $ARGS
