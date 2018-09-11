@@ -18,16 +18,27 @@ AF_FILTER_CONFIG="$PARAMS/af_filter_config.ini"
 CLASSIFICATION_FILTER_CONFIG="$PARAMS/classification_filter_config.ini"
 
 # reference stuff in /data1, test FASTQs in /data2
-DATA1="/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference"
-DATA2="./testing/test-data"
+#DATA1="/Users/mwyczalk/Data/SomaticWrapper/image/A_Reference"
+DATA1="/diskmnt/Projects/Users/mwyczalk/data/docker/data/A_Reference"
+DATA2="/diskmnt/Datasets/PDX/TestData/HCI/CGC_import/data"
 
-FQ1="$DATA2/NIX5.10K.R1.fastq.gz"
-FQ2="$DATA2/NIX5.10K.R2.fastq.gz"
+# TESTING NIX5.10K.  Use same reads for tumor, normal - just for testing
+#FQT1="$DATA2/NIX5.10K.R1.fastq.gz"
+#FQT2="$DATA2/NIX5.10K.R2.fastq.gz"
+#FQN1=$FQT1
+#FQN2=$FQT2
+
+FQT1="$DATA2/14311X4_HCI-027_Mix-80Patient-tumor-20mouse_7_1.fastq.gz"
+FQT2="$DATA2/14311X4_HCI-027_Mix-80Patient-tumor-20mouse_7_2.fastq.gz"
+
+FQN1="$DATA2/14311X1_HCI-027_Patient-blood-normal_7_1.fastq.gz"
+FQN2="$DATA2/14311X1_HCI-027_Patient-blood-normal_7_2.fastq.gz"
 
 HGFA="$DATA1/GRCh37-lite.fa"
 MMFA="$DATA1/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"
 
-DBSNP_DB="$DATA2/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
+#DBSNP_DB="$DATA2/dbsnp-StrelkaDemo.noCOSMIC.vcf.gz"
+DBSNP_DB="/diskmnt/Projects/Users/mwyczalk/data/docker/data/B_Filter/dbsnp.noCOSMIC.GRCh37.vcf.gz"
 
 # if using cache (recommended for production)
 VEP_CACHE_GZ="/diskmnt/Projects/Users/mwyczalk/data/docker/data/D_VEP/vep-cache.90_GRCh37.tar.gz"

@@ -11,10 +11,10 @@ CACHE="\
 
 ARGS="\
 --dbsnp_db $DBSNP_DB \
---FQ1 $FQ1 \
---FQ2 $FQ2 \
---FQ1_PDX $FQ1 \
---FQ2_PDX $FQ2 \
+--FQ1 $FQN1 \
+--FQ2 $FQN2 \
+--FQ1_PDX $FQT1 \
+--FQ2_PDX $FQT2 \
 --HGFA $HGFA \
 --MMFA $MMFA \
 --SampleName $SAMPLE \
