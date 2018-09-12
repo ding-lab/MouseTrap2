@@ -1,6 +1,8 @@
 SAMPLE="NIX5-test"
 
-# try to have all output go to output_dir
+# All output will go to OUTDIR
+# NOTE: this will generate a lot of intermediate data (>50Gb) for real datasets
+# Be sure that OUTD points to a partition which can handle this volume
 OUTD="results"
 mkdir -p $OUTD
 RABIX_ARGS="--basedir $OUTD"
